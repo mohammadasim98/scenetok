@@ -19,7 +19,18 @@
 ## 🔍 Method Overview 
 <div align="center">
   <img src="assets/imgs/scenetok_method.svg" width="800"/>
+  
 </div>
+<div style="text-align: justified;">
+<p>
+  <b>Method Overview.</b> 
+  
+  <b>(Left)</b> `SceneTok` encodes view sets into a set of compressed, unstructured scene tokens by chaining a VA-VAE image compressor and a perceiver module. The tokens can be rendered from novel views with a generative decoder based on rectified flows. 
+  
+  <b>(Right)</b> `SceneGen` perform scene generation by generating compressed scene tokens conditioned on a single or a few images and a set of anchor poses, defining the spatial scene extent.
+</p>
+</div>
+
 
 ## ✅ TODO
 `SceneTok` Version
