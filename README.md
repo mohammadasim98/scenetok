@@ -5,9 +5,9 @@
 
 *Max Planck Institute for Informatics, Saarland Informatics Campus*
 
-<h4 align="left">
-<a href="https://geometric-rl.mpi-inf.mpg.de/scenetok/">Project Page</a>
-</h4>
+[![Website](https://img.shields.io/badge/Website-SceneTok-blue)](https://geometric-rl.mpi-inf.mpg.de/scenetok/)
+<!-- [![arXiv](https://img.shields.io/badge/arXiv-to_appear-red)]() -->
+
 
 ### `TL;DR: Proposes a scene autoencoder to compress the view-set of a scene into a compressed, unstructured 1D token representation.` 
 
