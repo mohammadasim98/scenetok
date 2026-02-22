@@ -21,9 +21,8 @@
   <img src="assets/imgs/scenetok_method.svg" width="800"/>
   
 </div>
-<div style="text-align: justified;">
+<div align="justify">
 <p>
-  <b>Method Overview.</b> 
   
   <b>(Left)</b> `SceneTok` encodes view sets into a set of compressed, unstructured scene tokens by chaining a VA-VAE image compressor and a perceiver module. The tokens can be rendered from novel views with a generative decoder based on rectified flows. 
   
@@ -45,7 +44,7 @@
 If you are planning to use `SceneTok` in your work, consider citing it as follows.
 <section class="section" id="BibTeX">
   <div class="container is-max-desktop content">
-    <pre><code>@inproceedings{asim25scenetok,
+    <pre><code>@inproceedings{asim26scenetok,
     title = {SceneTok: A Compressed, Diffusable Token Space for 3D Scenes},
     author = {Asim, Mohammad and Wewer, Christopher and Lenssen, Jan Eric},
     booktitle = {Computer Vision and Pattern Recognition ({CVPR})},
