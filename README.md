@@ -1,6 +1,6 @@
 
 # Full code release soon :)!
-# `SceneTok`: A Compressed, Diffusable Token Space for 3D Scenes [CVPR 2026] 
+# `SceneTok`: A Compressed, Diffusable Token Space for 3D Scenes [CVPR '26] 
 <a href="https://mohammadasim98.github.io">Mohammad Asim</a>, <a href="https://geometric-rl.mpi-inf.mpg.de/people/Wewer.html">Christopher Wewer</a>, <a href="https://geometric-rl.mpi-inf.mpg.de/people/lenssen.html">Jan Eric Lenssen</a>
 
 *Max Planck Institute for Informatics, Saarland Informatics Campus*
@@ -9,7 +9,7 @@
 <!-- [![arXiv](https://img.shields.io/badge/arXiv-to_appear-red)]() -->
 
 
-### `TL;DR: Proposes a scene autoencoder to compress the view-set of a scene into a compressed, unstructured 1D token representation.` 
+### `TL;DR: A scene autoencoder that encodes a scene into a compressed, unstructured and diffusable 1D token representation.` 
 
 ### 📣 News
 
@@ -41,7 +41,7 @@
 
 
 ## BibTeX
-If you are planning to use `SceneTok` in your work, consider citing it as follows.
+If you find our work useful in your research, please cite it as:
 <section class="section" id="BibTeX">
   <div class="container is-max-desktop content">
     <pre><code>@inproceedings{asim26scenetok,
