@@ -47,7 +47,7 @@ If you find our work useful in your research, please cite it as:
     <pre><code>@inproceedings{asim26scenetok,
     title = {SceneTok: A Compressed, Diffusable Token Space for 3D Scenes},
     author = {Asim, Mohammad and Wewer, Christopher and Lenssen, Jan Eric},
-    booktitle = {Computer Vision and Pattern Recognition ({CVPR})},
+    booktitle = {IEEE/CVF Computer Vision and Pattern Recognition ({CVPR})},
     year = {2026},
 }</code></pre>
   </div>
