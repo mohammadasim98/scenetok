@@ -6,7 +6,7 @@
 *Max Planck Institute for Informatics, Saarland Informatics Campus*
 
 [![Website](https://img.shields.io/badge/Website-SceneTok-blue)](https://geometric-rl.mpi-inf.mpg.de/scenetok/)
-<!-- [![arXiv](https://img.shields.io/badge/arXiv-to_appear-red)]() -->
+[![arXiv](https://img.shields.io/badge/arXiv-Paper-red)](https://arxiv.org/abs/2602.18882)
 
 
 ### `TL;DR: A scene autoencoder that encodes a scene into a compressed, unstructured and diffusable 1D token representation.` 
@@ -52,4 +52,5 @@ If you find our work useful in your research, please cite it as:
 }</code></pre>
   </div>
 </section>
+
 
