@@ -31,13 +31,18 @@
 </div>
 
 
-## ✅ TODO
-`SceneTok` Version
+## ✅ High-Priority TODOs
+`SceneTok` release:
 - [ ] RealEstate10K
 - [ ] DL3DV
 
-`SceneGen` version
+`SceneGen` release:
 - [ ] RealEstate10K
+
+## Possible Future Extensions
+- [ ] High-resolution SceneTok (512x512)
+- [ ] SceneGen (DL3DV)
+- [ ] Pointcloud prediction from RGB+Depth renderings
 
 
 ## BibTeX
@@ -52,5 +57,6 @@ If you find our work useful in your research, please cite it as:
 }</code></pre>
   </div>
 </section>
+
 
 
