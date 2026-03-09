@@ -3,14 +3,14 @@
 
 ## 1. Incorrect scaling factor
 
-In the following experiments, we incorrectly scale the focal point by a factor defined in `src/misc/dl3dv_utils.py; line:45`
+In the following experiments, we incorrectly scale the focal point by a factor defined in `src/misc/dl3dv_utils.py; line:45`. The trained model in this case would just adapt to the incorrect scaling factor since the representation is structured implicitly and can only be observed through the renderer. For consistency with standard 3D approaches, we will fix this bug in the future versions.
 
 ```bash
 scenetok_va-vdc_shift4_dl3dv_finetuned
 scenetok_va-vdc_shift8_dl3dv_finetuned
 ```
 
-The intrinsics are already normalized by the stored height and width therefore does not require additional scaling. We dont have this bug in other experiments.
+The intrinsics are already normalized by the stored height and width therefore does not require additional scaling. The dont have this bug in other experiments.
 
 
 ## 2. Incorrect scaling factor for context
@@ -44,7 +44,7 @@ nn.Sequential(
 )
 ```
 
-Normally the correct value should be `temporal_downsample=4` for both VideoDCAE and WanVAE, but the model we trained for WanVAE has `temporal_downsample=1`. The following configs are affected by this bug, (same as in [2](#2-incorrect-scaling-factor-for-context))
+Normally the correct value should be `temporal_downsample=4` for both VideoDCAE and WanVAE, but the model we trained for WanVAE has `temporal_downsample=1`. This should not impact the downstream camera controlled rendering, since only the order of channels are different before applying MLP projection. The following configs are affected by this bug, (same as in [2](#2-incorrect-scaling-factor-for-context))
 
 ```bash
 scenetok_va-wan_shift4_dl3dv_finetuned
