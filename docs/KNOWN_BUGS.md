@@ -53,8 +53,8 @@ scenetok_va-wan_shift8_dl3dv_finetuned
 
 
 
-> [!INFO] 
-> In all future experiments, we will address these bugs, but for the trained model so far, we added certain parameters to allow these intentionally for inference. Make sure you dont enable them accidently when training your own model from scratch.
+> [!NOTE] 
+> In all future experiments, we will address these bugs, and for trained checpoints, we added parameters to allow these intentionally for inference. Make sure to disable them when training your own model from scratch.
 
 ```yaml
 dataset.scale_focal_by_256: true # for Bug: 1
