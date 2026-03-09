@@ -78,7 +78,7 @@ pip install torch==2.5.1 torchvision==0.20.1 torchaudio==2.5.1 --index-url https
 
 ```
 
-> [!INFO]
+> [!NOTE]
 > We only tested on the following so far: 
 > `torch 2.5.1`, `Python 3.11`, `CUDA 12.1`
 
