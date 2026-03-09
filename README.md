@@ -30,7 +30,7 @@
 </div>
 
 
-## Installation
+## :wrench: Installation
 ### System Requirements
 ```bash
 CUDA >= 11.8
@@ -122,11 +122,11 @@ pip install flash-attn --no-build-isolation
 > [!NOTE]
 > If you are using other environments than `conda`, then modify the environmental setup in `scripts/*sh`.
 
-## Inference on Notebook
+## :running: Quick Inference in Jupyter Notebook
 
-We provide with helper notebooks to perform quick inference with [SceneTok](/notebook/scenetok.ipynb) and [SceneGen](/notebook/scenegen.ipynb). 
+We provide an experimental notebook to perform quick inference with [SceneTok](/notebook/scenetok.ipynb). 
 
-## Training SceneTok
+## :robot: Training SceneTok
 Run the following to initiate training:
 ```bash
 python -m src.main +experiment=${config} \
@@ -168,7 +168,7 @@ scenetok_va-wan_shift8_dl3dv_finetuned
 </details>
 
 
-## Inference on SceneTok
+## :gear: Inference on SceneTok
 
 ```bash
 python -m src.main +experiment=${config} mode=test hydra.job.name=test \
@@ -208,14 +208,15 @@ scenetok_va-wan_shift4_dl3dv_finetuned # va-wan_dl3dv.ckpt
 `SceneGen` (Soon)
 - [ ] RealEstate10K - VA-VAE+VideoDC
 
-## Possible Future Extensions
+## :mega: Future Extensions
 - [ ] High-resolution SceneTok (512x512)
 - [ ] SceneGen (DL3DV)
 - [ ] Pointcloud prediction from RGB+Depth renderings
 
+## :page_with_curl: Feedback
+We will be very happy to hear feedback on how best to improve the documentation. Since we cleaned and restructured the code alot, in case of any issue or bugs with the documentation or the codebase, feel free to let us know.
 
-
-## BibTeX
+## :bookmark: BibTeX
 If you find our work useful in your research, please cite it as:
 <section class="section" id="BibTeX">
   <div class="container is-max-desktop content">
