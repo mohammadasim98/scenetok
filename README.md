@@ -57,7 +57,6 @@ Test hardware for training:
 | H100 | 96GB |
 
 </details>
-
 <details>
   <summary>Setting Up Environment</summary>
 Clone the repository
@@ -96,7 +95,6 @@ pip install flash-attn --no-build-isolation
 ```
 
 </details>
-
 <details>
   <summary>Downloading Data</summary>
 
