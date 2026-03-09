@@ -37,7 +37,9 @@ CUDA >= 11.8
 Python >= 3.9
 PyTorch >= 2.5
 ```
-
+> [!NOTE]
+> We only tested on the following so far: 
+> `torch 2.5.1`, `Python 3.11`, `CUDA 12.1`
 <details>
   <summary>Hardware Requirements</summary>
 
@@ -76,10 +78,6 @@ conda activate scenetok
 pip install torch==2.5.1 torchvision==0.20.1 torchaudio==2.5.1 --index-url https://download.pytorch.org/whl/cu121
 
 ```
-
-> [!NOTE]
-> We only tested on the following so far: 
-> `torch 2.5.1`, `Python 3.11`, `CUDA 12.1`
 
 
 Install remaining dependencies.
@@ -120,6 +118,9 @@ pip install flash-attn --no-build-isolation
 > Download [Wan 2.2 VAE](https://huggingface.co/Wan-AI/Wan2.2-TI2V-5B/resolve/main/Wan2.2_VAE.pth) to `checkpoint/` folder.
 
 </details>
+
+> [!NOTE]
+> If you are using other environments than `conda`, then modify the environmental setup in `scripts/*sh`.
 
 ## Inference on Notebook
 
@@ -164,9 +165,8 @@ scenetok_va-wan_shift8_dl3dv_finetuned
   ```bash
   bash slurm_job_array_scenetok.sh ${config}
   ```  
-> [!NOTE]
-> If you are using other environments than `conda`, then modify the environmental setup in `script/*sh`.
 </details>
+
 
 ## Inference on SceneTok
 
