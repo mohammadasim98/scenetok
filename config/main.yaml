@@ -1,0 +1,124 @@
+defaults:
+  - dataset: re10k
+  - optional dataset/view_sampler_dataset_specific_config: ${dataset/view_sampler}_${dataset}
+  - model/scheduler: rf
+  - model/denoiser: lightningdit_L_1
+  - model/autoencoders/context: va
+  - model/autoencoders/target: videodc
+  - model/compressor: mv_B1
+  - sampler: full_sequence
+
+  
+
+mode: train
+seed: null
+
+hydra:
+  run:
+    dir: ""   
+
+dataset:
+  overfit_to_scene: null
+
+wandb:
+  project: scenetok
+  entity: null
+  mode: online
+  activated: true
+
+freeze:
+  autoencoder: true
+  
+  denoiser: false
+  compressor: false
+  scene_generator: false
+
+model:
+  scene_generator: null
+  mask_context: false
+  noisy_scene_tokens: false
+  force_clean: false
+  mask_tokens: false
+  cfg_scale: 1.0
+  cfg_train: false
+  noise_prob: 0.2
+  scene_cfg_scale: 3.0 # For second stage
+  
+
+
+data_loader:
+  # Avoid having to spin up new processes to print out visualizations.
+  train:
+    name: train
+    shuffle: true
+    batch_size: 16
+    max_batches: -1
+    num_workers: 4
+    prefetch_factor: 2
+    pin_memory: true
+    seed: null
+    interval: null  
+    persistent_workers: true
+  test:
+    name: test
+    shuffle: true
+    batch_size: 1
+    max_batches: -1
+    num_workers: 4
+    seed: 0
+    interval: null  
+    persistent_workers: false
+  val:
+    standard:
+      name: val
+      shuffle: true
+      batch_size: 32
+      max_batches: 1
+      num_workers: 0
+      seed: null
+      interval: 2500  
+      persistent_workers: false
+
+
+checkpointing:
+  load: null
+  resume: false
+  every_n_train_steps: 500
+  save_top_k: 1
+
+train:
+  step_offset: 0
+
+test:
+  mode: null
+  scene_id: null
+  output_dir: ""
+  extrapolate_context: false
+  num_context_views: 12
+  num_condition_views: 1
+  reverse_sequence: false
+  generation_camera: false
+  scene_cfg: 3.0
+
+
+val:
+  mode: ["pyramid", "autoregressive", "sequential"]
+  video: true
+  video_length: 64
+  window_shift: 4
+  uncertainty_scale: 7.0
+
+
+trainer:
+  max_steps: 1_000_001
+  val_check_interval: 5000
+  task_steps: null
+  gradient_clip_val: 0.01 # 0.5
+  precision: null
+  validate: true
+  accumulate_grad_batches: 1
+  limit_test_batches: 1
+  strategy: 'ddp'
+  num_nodes: 1
+  devices: 1
+  profiler: null

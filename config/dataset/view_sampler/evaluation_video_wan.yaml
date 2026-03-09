@@ -1,0 +1,7 @@
+name: evaluation_video_wan
+
+index_path: assets/evaluation_index/re10k_c12_128.json
+temporal_downsample: 4
+num_context_views: 12
+num_target_views: 8
+num_target_split: 1

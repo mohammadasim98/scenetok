@@ -1,0 +1,9 @@
+defaults:
+  - embedding: time
+  
+name: ray
+
+input_shape: [8, 8]
+normalize: false
+origin_first: false
+scale: [1.0, 1.0]

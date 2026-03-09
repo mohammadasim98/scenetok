@@ -1,0 +1,9 @@
+
+defaults:
+  - dataset: va_re10k
+
+stage: train
+index:  0
+size: null
+output_dir: ""
+flip:  False

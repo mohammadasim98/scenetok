@@ -1,0 +1,114 @@
+# @package _global_
+
+defaults:
+  - override /dataset: dl3dv_hybrid_temporal
+  - override /dataset/view_sampler: bounded_v3
+  - override /model/scheduler: rf
+  - override /model/denoiser: lightningdit_L_1
+  - override /model/autoencoders/context: va
+  - override /model/autoencoders/target: video_dc
+  - override /model/compressor: mv_B1
+  - override /model/compressor/camera: ray
+  - override /model/compressor/camera/embedding: lvsm
+  - override /model/denoiser/camera: ray
+  - override /model/denoiser/camera/embedding: lvsm
+
+dataset:
+  context_root: "dataset/dl3dv_vavae_latents"
+  target_root: "dataset/dl3dv_videodc_latents" 
+  map_dict: dataset/dl3dv_vavae_latents/map_dict.json
+
+  # shape: [256, 256]
+  shape: [256, 256] 
+  
+  # Allow compatibility with va-videodc, refer to docs/KNOWN_BUG.md
+  scale_focal_by_256: true
+
+  view_sampler:
+    num_target_split: 2
+
+
+data_loader:
+  train:
+    batch_size: 16
+
+val:
+  video_length: 32
+wandb:
+  tags: [dl3dv, 256x256]
+
+  activated: true
+sampler:
+  clean_targets: 4
+
+model:
+
+  scheduler:
+    sampling_type: random_chunked_uniform
+    num_inference_steps: 25
+    kwargs:
+      weighting: shifted
+      timestep_shift: 8
+
+  denoiser:
+    ckpt_path: checkpoints/va-videodc_re10k.ckpt
+    load_strict: false # New class definition have unused parameters not available
+    # load_strict: true
+    input_shape: [8, 8]
+    gradient_checkpointing: false
+    num_target_split: 1 # Single 3D RoPE across all chunks
+    camera:
+      input_shape: [128, 128]
+      embedding:
+        patch_size: 16
+        in_channels: 24
+    kwargs:
+      use_rope_3d: true
+      in_channels: 128
+
+  compressor:
+    ckpt_path: checkpoints/va-videodc_re10k.ckpt
+    load_strict: false
+    kl_weights: [0.0, 0.0]
+    input_shape: [16, 16]
+    num_scene_tokens: 1024
+    causal_self_atten: false
+    gradient_checkpointing: false
+    token_dim: 64
+    init_large: true
+    camera_conditioning: adaLN
+    scene_token_projection: kl
+    mask_context: false
+    camera:
+      input_shape: [128, 128]
+      embedding:
+        patch_size: 16
+    kwargs:
+      use_rope_2d: true
+      use_rope_3d: false
+      patch_size: 2
+
+        
+trainer:
+  max_steps: 5_000_001
+  val_check_interval: 5000
+  task_steps: null
+  accumulate_grad_batches: 1
+  gradient_clip_val: 0.01
+
+  precision: bf16-mixed
+
+optimizer:
+  name: AdamW
+  lr: 8.0e-6
+
+  scale_lr: false
+  # override_lr: 2.0e-5
+  milestones: [2000]
+  scheduler:
+    name: LinearLR
+    frequency: 1
+    interval: step
+    kwargs:
+      start_factor: 5.e-4
+      total_iters: 2000

@@ -1,0 +1,6 @@
+name: time_embed
+in_channels: 6
+dropout_prob: 0.0
+fourier: true
+freq_origin: 15
+freq_direction: 15

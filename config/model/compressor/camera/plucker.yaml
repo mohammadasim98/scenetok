@@ -1,0 +1,9 @@
+defaults:
+  - embedding: time
+  
+name: plucker
+
+input_shape: [8, 8]
+normalize: true
+origin_first: false
+scale: [1.0, 1.0]

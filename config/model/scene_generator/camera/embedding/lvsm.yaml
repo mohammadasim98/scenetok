@@ -1,0 +1,3 @@
+name: lvsm
+patch_size: 4
+in_channels: 6

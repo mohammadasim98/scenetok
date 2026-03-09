@@ -1,0 +1,30 @@
+defaults:
+  - camera: plucker
+  - override camera/embedding: patch
+
+name: lightningdit
+
+camera:
+  input_shape: [32, 32]
+  embedding:
+    patch_size: 4
+    dropout_prob: 0.1
+    in_channels: 6
+
+ckpt_path: null
+load_strict: true
+pretrained_from: null
+camera_conditioning: adaLN
+kwargs:
+  input_size: 16
+  patch_size: 2
+  hidden_size: 768
+  depth: 12
+  num_heads: 12
+  use_qknorm: true
+  use_swiglu: true
+  use_rope: false
+  use_rope_3d: true
+  use_rmsnorm: true
+  wo_shift: false
+

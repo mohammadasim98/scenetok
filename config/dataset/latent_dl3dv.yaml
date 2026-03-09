@@ -1,0 +1,19 @@
+defaults:
+  - view_sampler: bounded
+
+name: latent
+target_root: null
+context_root: null
+baseline_epsilon: 1.0e-3
+make_baseline_1: false
+map_dict: null
+limit_target_downsample_factor: [1]
+limit_context_downsample_factor: [1]
+random_flip: true
+context_latent_type: "va"
+target_latent_type: "videodc"
+augment: true
+cameras_are_circular: false
+precomputed_latents: 
+  context: true
+  target: true

@@ -1,0 +1,27 @@
+
+
+name: pytorch
+
+# From lightning
+dirpath: null
+filename: null
+emit_nvtx: false
+export_to_chrome: true
+row_limit: 20
+sort_by_key: null
+record_module_names: true
+table_kwargs: null
+
+
+# From torch
+activities: null
+schedule: null
+on_trace_ready: null
+record_shapes: True
+profile_memory: True
+with_stack: false
+with_flops: false
+with_modules: false
+experimental_config: null
+execution_trace_observer: null
+acc_events: false
