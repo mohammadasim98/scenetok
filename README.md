@@ -39,7 +39,7 @@ PyTorch >= 2.5
 ```
 
 <details>
-  <summary><h3 style="display: inline;">Hardware Requirements</h3></summary>
+  <summary>Hardware Requirements</summary>
 
 Tested hardware for inference:
 
@@ -59,7 +59,7 @@ Test hardware for training:
 </details>
 
 <details>
-  <summary><h3 style="display: inline;">Setting Up Environment</h3></summary>
+  <summary>Setting Up Environment</summary>
 Clone the repository
 
 ```bash
@@ -98,7 +98,7 @@ pip install flash-attn --no-build-isolation
 </details>
 
 <details>
-  <summary><h3 style="display: inline;">Downloading Data</h3></summary>
+  <summary>Downloading Data</summary>
 
 > #### **Datasets**
 > Place the dataset in `dataset/` folder.
@@ -154,7 +154,7 @@ scenetok_va-wan_shift4_dl3dv_finetuned
 scenetok_va-wan_shift8_dl3dv_finetuned
 ```
 <details>
-  <summary><h5 style="display: inline;">Using SLURM</h5></summary>
+  <summary>Using SLURM</summary>
 
   We provide SLURM script to allow multi-node/gpu training using job arrays. In `scripts/slurm_job_array_scenetok.sh` we provide a template where you can define your own configuration related to GPU and job array configurations. 
   First, set the `PROJECT_ROOT` as environment variable:
