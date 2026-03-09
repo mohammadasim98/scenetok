@@ -1,0 +1,3 @@
+[submodule "submodules/fvd"]
+	path = submodules/fvd
+	url = https://github.com/mohammadasim98/frechet_video_distance-pytorch-.git

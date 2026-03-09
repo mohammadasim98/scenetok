@@ -1,0 +1,10 @@
+
+name: videodc_dl3dv
+
+ckpt_path: checkpoints/F32T4C128_AE.safetensors
+image_shape: [512, 512]
+data_root: ""
+min_frames: 32
+downsample_factors: [1]
+num_workers: 8
+subset: ""

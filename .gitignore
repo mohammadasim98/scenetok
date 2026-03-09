@@ -162,12 +162,6 @@ cython_debug/
 
 
 # Outputs
-/outputs
-/checkpoints
-/job_outputs
-/jobs
-
-/wandb
 *.png
 *.mp4
 *.gif
@@ -176,25 +170,26 @@ cython_debug/
 /launcher_venv
 *.torch
 *.ckpt
-/gt
+
 .hydra/
 .hydra/config.yaml
 ./.hydra/hydra.yaml
 ./.hydra/overrides.yaml
 /.hydra/*
-experiments/
-test_videodcae/
 *.pdf
 *.aux
 *.tex
 *.avi
 
-lightning_logs
+/outputs
+/checkpoints
+/job_outputs
+/jobs
+/lightning_logs
+/wandb
 
-# Later to be released
-src/
-scripts/
-config/
-notebook/
-requirements.txt
-README-dev.md
+notebook/scenegen.ipynb
+src/model/scene_wrapper.py
+
+
+

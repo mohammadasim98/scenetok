@@ -1,0 +1,6 @@
+
+name: lightningdit
+patch_size: 2
+hidden_size: 1152
+depth: 28
+num_heads: 16

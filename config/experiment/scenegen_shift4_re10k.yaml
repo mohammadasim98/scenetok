@@ -1,0 +1,130 @@
+# @package _global_
+
+defaults:
+  - /model/scene_generator: lightningdit_1p0B_1
+  - override /dataset: re10k_hybrid_temporal_scene
+  - override /dataset/view_sampler: video_va_videodc  
+  - override /model/scheduler: rf
+  - override /model/denoiser: lightningdit_L_1
+  - override /model/autoencoders/context: va
+  - override /model/autoencoders/target: video_dc
+  - override /model/compressor: mv_B1
+  - override /model/compressor/camera: ray
+  - override /model/compressor/camera/embedding: lvsm
+  - override /model/denoiser/camera: ray
+  - override /model/denoiser/camera/embedding: lvsm
+
+dataset:
+  context_root: "/dais/fs/scratch/masim/re10k_vavae_latents"
+  target_root: "/dais/fs/scratch/masim/re10k_videodc_latents_16" 
+
+  # shape: [256, 256]
+  shape: [256, 256] 
+
+  # overfit_to_scene: 
+  #   - 0a5eeb4466dd19bb
+  view_sampler: 
+    num_context_views: 12
+    num_target_views: 8
+    min_context_views: 12
+    starting_index_gap: 4
+
+data_loader:
+  train:
+    batch_size: 48
+
+val:
+  video_length: 64
+wandb:
+  tags: [re10k, 256x256]
+
+  activated: true
+
+freeze:
+  denoiser: true
+  compressor: true
+  scene_generator: false
+
+model:
+  # Compressor checkpoints were loaded from VA VAE
+  scene_cfg_scale: 3.0
+  scheduler:
+    sampling_type: random_chunked_uniform
+    num_inference_steps: 25
+    kwargs:
+      weighting: logit_normal
+      
+      timestep_shift: 4
+
+  scene_generator:
+    scale_factor: 0.1
+    gradient_checkpointing: false
+    input_shape: [16, 16]
+    kwargs: 
+      in_channels: 32
+    camera:
+      input_shape: [128, 128]
+      embedding:
+        patch_size: 8
+        in_channels: 6
+  denoiser:
+    ckpt_path: checkpoints/litDiTL1_B2_l512_c12_re10k_703k_frozen.ckpt
+    # load_strict: true
+    input_shape: [8, 8]
+    gradient_checkpointing: false
+    camera:
+      input_shape: [128, 128]
+      embedding:
+        patch_size: 16
+        in_channels: 24
+    kwargs:
+      use_rope_3d: true
+      in_channels: 128
+
+  compressor:
+    ckpt_path: checkpoints/litDiTL1_B2_l512_c12_re10k_703k_frozen.ckpt
+    kl_weights: [1e-9, 1e-9]
+    input_shape: [16, 16]
+    num_scene_tokens: 512
+    causal_self_atten: false
+    gradient_checkpointing: false
+    token_dim: 64
+    camera_conditioning: adaLN
+    scene_token_projection: kl
+
+    camera:
+      input_shape: [128, 128]
+      embedding:
+        patch_size: 16
+    kwargs:
+      use_rope_2d: true
+      use_rope_3d: false
+      patch_size: 2
+      
+trainer:
+  max_steps: 5_000_001
+  val_check_interval: 5000
+  task_steps: null
+  accumulate_grad_batches: 1
+  gradient_clip_val: 0.1
+
+  precision: bf16-mixed
+
+optimizer:
+  name: AdamW
+  lr: 2.0e-5
+
+  scale_lr: false
+  # override_lr: 2.0e-5
+  milestones: [2000]
+  scheduler:
+    name: LinearLR
+    frequency: 1
+    interval: step
+    kwargs:
+      start_factor: 5.e-4
+      total_iters: 2000
+
+# checkpointing:
+#   load: outputs/litDiTL1_S1_l512_va-videodc_ray_clean/2025-06-22_11-09-59/checkpoints/litDiTL1_S1_l512_va-videodc_ray_clean.ckpt
+#   resume: false

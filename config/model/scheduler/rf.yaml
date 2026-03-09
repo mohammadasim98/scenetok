@@ -1,0 +1,13 @@
+name: rectified_flow
+pretrained_from: null
+num_inference_steps: 70
+num_train_timesteps: 1000
+sampling_type: random_uniform
+
+# Refer to https://huggingface.co/docs/diffusers/v0.4.1/en/api/schedulers#diffusers.DDIMScheduler
+kwargs:
+  num_train_timesteps: 1000
+  prediction_type: "flow"
+  full_range: true
+  weighting: uniform
+  timestep_shift: null

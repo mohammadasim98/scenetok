@@ -1,0 +1,4 @@
+name: evaluation_scene
+
+test_index_path: assets/evaluation_index/re10k_all_test.json
+train_index_path: assets/evaluation_index/re10k_all_train.json

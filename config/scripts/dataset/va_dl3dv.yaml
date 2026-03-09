@@ -1,0 +1,11 @@
+
+name: va_dl3dv
+
+ckpt_path: checkpoints/vavae-imagenet256-f16d32-dinov2.pt
+image_shape: [512, 512]
+data_root: ""
+min_frames: 32
+downsample_factors: [1]
+num_workers: 8
+subset: ""
+encode_batch_size: 16

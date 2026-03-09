@@ -1,0 +1,84 @@
+defaults:
+  # - dataset: re10k
+  - dataset: dl3dv_hybrid_temporal
+  - override dataset/view_sampler: bounded_v3 # bounded_v2 # scene
+
+
+
+dataset:
+  overfit_to_scene: null
+
+  # root: /scratch/inf0/user/masim/acid/acid
+  context_root: "/scratch/inf0/user/masim/dataset/dl3dv_vavae_latents"
+  target_root: "/scratch/inf0/user/masim/dataset/dl3dv_wan_latents2" 
+
+  view_sampler:
+    num_context_views: 16 #5 
+    # num_target_views: 34
+
+    num_target_split: 2
+    num_target_views: 10
+    chunk_index_gap: 5
+    offset: 1
+    # starting_index_gap: 1
+    min_distance_between_context_views: 64
+    max_distance_between_context_views: 64
+    max_distance_to_context_views: 0
+    # context_gap_warm_up_steps: 150_000 
+    # target_gap_warm_up_steps: 50_000
+    # initial_min_distance_between_context_views: 32
+    # initial_max_distance_between_context_views: 45
+    # initial_max_distance_to_context_views: 0  # 0
+data_loader:
+  train:
+    name: train
+    shuffle: true
+    batch_size: 1
+    max_batches: -1
+    num_workers: 4
+    seed: null
+    interval: null  
+    persistent_workers: true
+  test:
+    name: test
+    shuffle: true
+    batch_size: 1
+    max_batches: -1
+    num_workers: 4
+    seed: 0
+    interval: null  
+    persistent_workers: false
+  val:
+    standard:
+      name: val
+      shuffle: true
+      batch_size: 1
+      max_batches: -1
+      num_workers: 4
+      seed: null
+      interval: 2500  
+      persistent_workers: false
+      
+    evaluate:
+      name: val
+      shuffle: false
+      batch_size: 16
+      max_batches: -1
+      num_workers: 4
+      seed: 0
+      interval: 25000  
+      persistent_workers: false
+
+
+index_generator:
+
+  output_file: assets/evaluation_index/dl3dv_c16_34.json
+  seed: 0
+  num_context_views: 16
+  num_target_view_min: 34
+  # num_target_view_max: 130
+  hard_target_limit: 34
+
+
+seed: 0
+num_scenes: 140

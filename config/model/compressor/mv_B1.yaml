@@ -1,0 +1,29 @@
+defaults:
+  - camera: plucker
+  - override camera/embedding: null
+
+name: mvae_compressor
+token_dim: 32
+num_scene_tokens: 256
+use_ray_map: true
+freeze_backbone: true
+reproject_out: true
+use_backbone: false
+camera_conditioning: concat
+scene_token_projection: simple
+ckpt_path: null
+load_strict: true
+zero_init: false
+input_shape: [8, 8]
+init_large: true
+kwargs:
+  hidden_size: 768
+  depth: 12
+  patch_size: 1
+  num_heads: 12
+  mlp_ratio: 4.0
+  use_qknorm: false
+  use_swiglu: true
+  use_rope_3d: true
+  use_rmsnorm: true
+  wo_shift: false

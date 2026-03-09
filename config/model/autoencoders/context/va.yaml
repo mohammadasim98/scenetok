@@ -1,0 +1,6 @@
+name: va
+pretrained_from: checkpoints/vavae-imagenet256-f16d32-dinov2.pt
+
+kwargs:
+  latent_channels: 32
+  scaling_factor: 0.181

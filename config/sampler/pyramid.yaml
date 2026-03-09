@@ -1,0 +1,4 @@
+name: pyramid
+
+clean_targets: 4
+uncertainty_scale: 4

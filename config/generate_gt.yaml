@@ -1,0 +1,50 @@
+defaults:
+  - dataset: re10k
+  - override dataset/view_sampler: evaluation
+
+dataset:
+  overfit_to_scene: null
+
+data_loader:
+  train:
+    name: train
+    shuffle: true
+    batch_size: 1
+    max_batches: -1
+    num_workers: 4
+    seed: null
+    interval: null  
+    persistent_workers: true
+  test:
+    name: test
+    shuffle: true
+    batch_size: 1
+    max_batches: -1
+    num_workers: 4
+    seed: 0
+    interval: null  
+    persistent_workers: false
+  val:
+    standard:
+      name: val
+      shuffle: true
+      batch_size: 1
+      max_batches: -1
+      num_workers: 4
+      seed: null
+      interval: 2500  
+      persistent_workers: false
+      
+    evaluate:
+      name: val
+      shuffle: false
+      batch_size: 16
+      max_batches: -1
+      num_workers: 4
+      seed: 0
+      interval: 25000  
+      persistent_workers: false
+
+output_path: ./gt
+
+seed: 456

@@ -1,0 +1,8 @@
+
+name: va_re10k
+
+ckpt_path: checkpoints/vavae-imagenet256-f16d32-dinov2.pt
+image_shape: [256, 256]
+data_root: ""
+min_frames: 32
+downsample_factors: [1]

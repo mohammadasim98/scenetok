@@ -1,0 +1,6 @@
+name: patch_embed
+patch_size: 4
+dropout_prob: 0.0
+in_channels: 6
+bias: true
+flatten: true

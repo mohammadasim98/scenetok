@@ -1,0 +1,15 @@
+#!/bin/bash
+
+# Job constants
+
+config=$1
+num_workers=${2:-16}
+gpus=${3:-1}
+id=${4:-'null'}
+params=${*:3}
+
+if [ "$id" == 'null' ]; then
+    id=$(date '+%Y-%m-%d_%H-%M-%S')
+fi
+
+python -m src.main_scene +experiment=${config} data_loader.train.num_workers=${num_workers} data_loader.val.standard.batch_size=8 hydra.run.dir=./outputs/${config}/${id} mode=train hydra.job.name=train checkpointing.every_n_train_steps=5000 trainer.devices=${gpus} trainer.num_nodes=1
