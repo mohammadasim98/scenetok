@@ -99,7 +99,7 @@ trainer:
 
 optimizer:
   name: AdamW
-  lr: 8.0e-6
+  lr: 1.0e-5
 
   scale_lr: false
   # override_lr: 2.0e-5
