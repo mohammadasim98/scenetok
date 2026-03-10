@@ -6,7 +6,6 @@ context_root: null
 target_root: null
 make_baseline_1: false
 shape: [256, 256] # [180, 320]
-cameras_are_circular: false
 precomputed_latents: 
   context: true
   target: true
