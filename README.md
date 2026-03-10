@@ -39,8 +39,10 @@ PyTorch >= 2.5
 ```
 > [!NOTE]
 > We only tested on the following so far: 
-> `torch 2.5.1`, `Python 3.11`, `CUDA 12.1`
-> `torch 2.7.0`, `Python 3.11`, `CUDA 12.8`
+>
+> `torch-2.5.1 + Python-3.11 + CUDA 12.1`
+>
+> `torch 2.7.0 + Python 3.11 + CUDA 12.8`
 <details>
   <summary>Hardware Requirements</summary>
 
