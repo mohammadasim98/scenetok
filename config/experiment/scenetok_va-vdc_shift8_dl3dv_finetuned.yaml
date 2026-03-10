@@ -1,8 +1,8 @@
 # @package _global_
 
 defaults:
-  - override /dataset: dl3dv_hybrid_temporal
-  - override /dataset/view_sampler: bounded_v3
+  - override /dataset: latent_dl3dv
+  - override /dataset/view_sampler: bounded
   - override /model/scheduler: rf
   - override /model/denoiser: lightningdit_L_1
   - override /model/autoencoders/context: va
