@@ -1,7 +1,7 @@
 defaults:
   # - dataset: re10k
-  - dataset: dl3dv_hybrid_temporal
-  - override dataset/view_sampler: bounded_v3 # bounded_v2 # scene
+  - dataset: latent_dl3dv
+  - override dataset/view_sampler: bounded # bounded_v2 # scene
 
 
 
