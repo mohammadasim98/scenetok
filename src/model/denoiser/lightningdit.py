@@ -59,7 +59,7 @@ class LightningDiTCfg:
     pretrained_from: str | Path | None = None
     ckpt_path: str | Path | None = None
     load_strict: bool=True
-
+    causal_attention: bool=False
 class LightningDiT(Denoiser[LightningDiTCfg]):
     def __init__(
         self, 
@@ -101,7 +101,8 @@ class LightningDiT(Denoiser[LightningDiTCfg]):
             use_checkpoint=cfg.gradient_checkpointing,
             frequency_embedding_size=cfg.kwargs.frequency_embedding_size,
             num_views=num_views,
-            num_split=num_split
+            num_split=num_split,
+            causal_attention=cfg.causal_attention
         )
         
         if self.pretrained_from is not None:

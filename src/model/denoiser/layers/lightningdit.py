@@ -46,7 +46,8 @@ class Attention(nn.Module):
         fused_attn: bool = True,
         use_rmsnorm: bool = False,
         cross_atten: bool = False,
-        is_3d_rope: bool=False
+        is_3d_rope: bool=False,
+        is_causal: bool=False
     ) -> None:
         super().__init__()
         assert dim % num_heads == 0, 'dim should be divisible by num_heads'
@@ -65,6 +66,7 @@ class Attention(nn.Module):
         self.proj = nn.Linear(dim, dim)
         self.proj_drop = nn.Dropout(proj_drop)
         self.attn_drop = attn_drop
+        self.is_causal=is_causal
         if not cross_atten:
             self.qkv = nn.Linear(dim, dim * 3, bias=qkv_bias)
 
@@ -106,7 +108,7 @@ class Attention(nn.Module):
         k = rearrange(k, "b h n d -> b n h d")
         v = rearrange(v, "b h n d -> b n h d")
 
-        x = flash_attn_func(q, k, v, dropout_p=self.attn_drop if self.training else 0.)
+        x = flash_attn_func(q, k, v, dropout_p=self.attn_drop if self.training else 0., causal=self.is_causal)
         x = rearrange(x, "b n h d -> b n (h d)")
 
         x = self.proj(x)
@@ -212,6 +214,7 @@ class LightningDiTBlock(nn.Module):
         use_swiglu=False, 
         use_rmsnorm=False,
         wo_shift=False,
+        causal_attention=False,
         **block_kwargs
     ):
         super().__init__()
@@ -231,6 +234,7 @@ class LightningDiTBlock(nn.Module):
             qkv_bias=True,
             qk_norm=use_qknorm,
             use_rmsnorm=use_rmsnorm,
+            is_causal=causal_attention,
             **block_kwargs
         )
 
@@ -332,7 +336,8 @@ class LitDiT(nn.Module):
         use_rmsnorm=False,
         wo_shift=False,
         use_checkpoint=False,
-        frequency_embedding_size: int=256
+        frequency_embedding_size: int=256,
+        causal_attention: bool=False
     ):
         super().__init__()
         print("(LitDiT) Number of target splits: ", num_split)
@@ -349,7 +354,7 @@ class LitDiT(nn.Module):
         self.use_checkpoint = use_checkpoint
         self.num_split = num_split
         max_shape = max(input_size)
-        
+        self.causal_attention=causal_attention
         self.x_embedder = PatchEmbed(max_shape, patch_size, in_channels, hidden_size, bias=True)
         self.t_embedder = TimestepEmbedder(hidden_size, frequency_embedding_size=frequency_embedding_size)
         # self.y_embedder = LabelEmbedder(num_classes, hidden_size, class_dropout_prob)
@@ -380,6 +385,7 @@ class LitDiT(nn.Module):
                      use_rmsnorm=use_rmsnorm,
                      wo_shift=wo_shift,
                      is_3d_rope=self.use_rope_3d,
+                     causal_attention=causal_attention,
                      ) for _ in range(depth)
         ])
         self.final_layer = FinalLayer(hidden_size, patch_size, self.out_channels, use_rmsnorm=use_rmsnorm)
