@@ -212,9 +212,11 @@ scenetok_va-wan_shift4_dl3dv_finetuned # va-wan_dl3dv.ckpt
 - [ ] RealEstate10K - VA-VAE+VideoDC
 
 ## :mega: Future Extensions
+- [ ] Interactive Scene Renderer
+  - [ ] Causal decoder version for SceneTok
 - [ ] High-resolution SceneTok (512x512)
-- [ ] SceneGen (DL3DV)
 - [ ] Pointcloud prediction from RGB+Depth renderings
+- [ ] SceneGen (DL3DV)
 
 ## :page_with_curl: Feedback
 We will be very happy to hear feedback on how best to improve the documentation. Since we cleaned and restructured the code alot, in case of any issue or bugs with the documentation or the codebase, feel free to let us know. Refer to [KNOWN_BUGS](/docs/KNOWN_BUGS.md) for bugs already reported.
