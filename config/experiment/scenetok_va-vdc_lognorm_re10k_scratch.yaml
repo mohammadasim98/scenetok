@@ -58,7 +58,7 @@ model:
   
   denoiser:
     input_shape: [8, 8]
-    load_strict: false
+    load_strict: false # Backward compatibility: only for provided checkpoints
     gradient_checkpointing: false
     num_target_split: 1
     camera:
@@ -71,7 +71,7 @@ model:
       in_channels: 128
 
   compressor:
-    load_strict: false
+    load_strict: false # Backward compatibility: only for provided checkpoints
     freeze_after: 150000 # Afterwards finetune the decoder only
     kl_weights: [1e-10, 1e-10] # Adds a small reglurization for stabilizing the token space (Only for RE10k)
     input_shape: [16, 16]

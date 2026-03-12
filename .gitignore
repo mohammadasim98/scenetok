@@ -180,6 +180,7 @@ cython_debug/
 *.aux
 *.tex
 *.avi
+*settings.json
 
 /outputs
 /checkpoints

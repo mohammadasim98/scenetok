@@ -15,14 +15,11 @@ defaults:
   - override /model/denoiser/camera/embedding: lvsm
 
 dataset:
-  context_root: "/dais/fs/scratch/masim/re10k_vavae_latents"
-  target_root: "/dais/fs/scratch/masim/re10k_videodc_latents_16" 
+  context_root: "dataset/re10k_vavae_latents"
+  target_root: "dataset/re10k_videodc_latents" 
 
-  # shape: [256, 256]
   shape: [256, 256] 
 
-  # overfit_to_scene: 
-  #   - 0a5eeb4466dd19bb
   view_sampler: 
     num_context_views: 12
     num_target_views: 8
@@ -47,7 +44,6 @@ freeze:
   scene_generator: false
 
 model:
-  # Compressor checkpoints were loaded from VA VAE
   scene_cfg_scale: 3.0
   scheduler:
     sampling_type: random_chunked_uniform
@@ -58,6 +54,7 @@ model:
       timestep_shift: 12
 
   scene_generator:
+    ckpt_path: checkpoints/scenegen_shift12_re10k.ckpt
     scale_factor: 0.1
     gradient_checkpointing: false
     input_shape: [16, 16]
@@ -69,8 +66,8 @@ model:
         patch_size: 8
         in_channels: 6
   denoiser:
-    ckpt_path: checkpoints/litDiTL1_B2_l512_c12_re10k_703k_frozen.ckpt
-    # load_strict: true
+    ckpt_path: checkpoints/va-videodc_re10k.ckpt
+    load_strict: false # Backward compatibility: only for provided checkpoints
     input_shape: [8, 8]
     gradient_checkpointing: false
     camera:
@@ -83,8 +80,9 @@ model:
       in_channels: 128
 
   compressor:
-    ckpt_path: checkpoints/litDiTL1_B2_l512_c12_re10k_703k_frozen.ckpt
-    kl_weights: [1e-9, 1e-9]
+    ckpt_path: checkpoints/va-videodc_re10k.ckpt
+    load_strict: false # Backward compatibility: only for provided checkpoints
+    kl_weights: [0.0, 0.0]
     input_shape: [16, 16]
     num_scene_tokens: 512
     causal_self_atten: false

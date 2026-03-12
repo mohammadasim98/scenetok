@@ -18,7 +18,6 @@ dataset:
   target_root: "dataset/dl3dv_wan_latents" 
   map_dict: dataset/dl3dv_wan_latents_single/map_dict.json
 
-  # shape: [256, 256]
   shape: [256, 256] 
 
   limit_frame_distance: [1]
@@ -57,9 +56,6 @@ model:
       weighting: shifted
       timestep_shift: 4
   denoiser:
-    ckpt_path: checkpoints/va-videodc_dl3dv.ckpt
-    load_strict: false # New class definition have unused parameters not available
-    load_strict: false
     input_shape: [16, 16]
     gradient_checkpointing: false
     num_target_split: 2 # Split 3D RoPE to be applied independently per chunk
@@ -73,8 +69,6 @@ model:
       in_channels: 48
 
   compressor:
-    ckpt_path: checkpoints/va-videodc_dl3dv.ckpt
-    load_strict: false # New class definition have unused parameters not available
     kl_weights: [0.0, 0.0]
     input_shape: [16, 16]
     num_scene_tokens: 1024

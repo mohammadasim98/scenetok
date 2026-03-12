@@ -40,7 +40,6 @@ nn.Sequential(
         embed_dim,
         bias=False,
     ),
-    # nn.RMSNorm(embed_dim),
 )
 ```
 
@@ -54,7 +53,7 @@ scenetok_va-wan_shift8_dl3dv_finetuned
 
 
 > [!NOTE] 
-> In all future experiments, we will address these bugs, and for trained checpoints, we added parameters to allow these intentionally for inference. Make sure to disable them when training your own model from scratch.
+> In all future experiments, we will address these bugs, and for trained checkpoints, we added parameters to allow these intentionally for inference. Make sure to disable them when training your own model from scratch.
 
 ```yaml
 dataset.scale_focal_by_256: true # for Bug: 1

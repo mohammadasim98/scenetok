@@ -14,10 +14,9 @@ defaults:
   - override /model/denoiser/camera/embedding: lvsm
 
 dataset:
-  context_root: dataset/dl3dv_vavae_latents
-  target_root: dataset/dl3dv_videodc_latents
-  map_dict: dataset/dl3dv_vavae_latents/map_dict.json
-  # shape: [256, 256]
+  context_root: /BS/re10k/work/dl3dv_vavae_latents
+  target_root: /BS/re10k/work/dl3dv_videodc_latents
+  map_dict: /BS/re10k/work/dl3dv_vavae_latents/map_dict.json
   shape: [256, 256] 
 
   view_sampler:
@@ -60,7 +59,7 @@ model:
       in_channels: 128
 
   compressor:
-    load_strict: false
+    load_strict: false # Backward compatibility: only for provided checkpoints
     kl_weights: [0.0, 0.0]
     input_shape: [16, 16]
     num_scene_tokens: 1024
