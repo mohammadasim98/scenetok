@@ -12,14 +12,12 @@ Usage:
 
 import os
 import signal
-import tempfile
-import shutil
 from pathlib import Path
 from typing import Optional
 
 from lightning.pytorch import Trainer, LightningModule
 from lightning.pytorch.callbacks import Callback
-from lightning.pytorch.utilities import rank_zero_only, rank_zero_info
+from lightning.pytorch.utilities import rank_zero_info
 
 
 class GracefulExitCallback(Callback):
@@ -41,7 +39,7 @@ class GracefulExitCallback(Callback):
         checkpoint_name: str = "last.ckpt"
     ):
         super().__init__()
-        self.checkpoint_dir = checkpoint_dir
+        self.checkpoint_dir = Path(checkpoint_dir) if checkpoint_dir is not None else None
         self.checkpoint_name = checkpoint_name
         self._trainer: Optional[Trainer] = None
         self._received_sigterm = False
@@ -65,37 +63,33 @@ class GracefulExitCallback(Callback):
             # Save checkpoint immediately (atomic write)
             self._save_checkpoint_atomic()
     
-    @rank_zero_only
     def _save_checkpoint_atomic(self):
         """Save checkpoint atomically to prevent corruption."""
         if self._trainer is None:
             return
         
-        # Determine checkpoint directory
+        # Only rank 0 should save
+        if self._trainer.global_rank != 0:
+            return
+        
+        # Use the checkpoint_dir passed during init
         if self.checkpoint_dir is not None:
-            ckpt_dir = Path(self.checkpoint_dir)
-        elif self._trainer.default_root_dir:
-            ckpt_dir = Path(self._trainer.default_root_dir) / "checkpoints"
+            ckpt_dir = self.checkpoint_dir
         else:
-            ckpt_dir = Path("checkpoints")
+            ckpt_dir = Path(self._trainer.default_root_dir) / "checkpoints"
         
         ckpt_dir.mkdir(parents=True, exist_ok=True)
         final_path = ckpt_dir / self.checkpoint_name
-        
-        # Write to temporary file first, then atomic rename
-        # This prevents corruption if the process is killed during write
-        temp_fd, temp_path = tempfile.mkstemp(
-            suffix=".ckpt.tmp",
-            dir=str(ckpt_dir)
-        )
-        os.close(temp_fd)
+        temp_path = ckpt_dir / f".{self.checkpoint_name}.tmp"
         
         try:
             rank_zero_info(f"Saving checkpoint to {final_path}...")
-            self._trainer.save_checkpoint(temp_path)
             
-            # Atomic rename (on same filesystem, rename is atomic)
-            shutil.move(temp_path, final_path)
+            # Save to temp file first
+            self._trainer.save_checkpoint(str(temp_path))
+            
+            # Atomic rename (on same filesystem, rename is atomic on POSIX)
+            os.replace(str(temp_path), str(final_path))
             
             rank_zero_info(f"Checkpoint saved successfully at step {self._trainer.global_step}")
             rank_zero_info("="*60 + "\n")
@@ -103,8 +97,8 @@ class GracefulExitCallback(Callback):
         except Exception as e:
             rank_zero_info(f"Error saving checkpoint: {e}")
             # Clean up temp file on failure
-            if os.path.exists(temp_path):
-                os.remove(temp_path)
+            if temp_path.exists():
+                temp_path.unlink()
             raise
     
     def on_fit_start(self, trainer: Trainer, pl_module: LightningModule):
@@ -114,7 +108,7 @@ class GracefulExitCallback(Callback):
         
         # Store original handler and install ours
         self._original_handler = signal.signal(signal.SIGTERM, self._sigterm_handler)
-        rank_zero_info("GracefulExitCallback: SIGTERM handler registered")
+        rank_zero_info(f"GracefulExitCallback: SIGTERM handler registered, checkpoint_dir={self.checkpoint_dir}")
     
     def on_fit_end(self, trainer: Trainer, pl_module: LightningModule):
         """Restore original signal handler."""
