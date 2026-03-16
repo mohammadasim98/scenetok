@@ -141,7 +141,7 @@ python -m src.main +experiment=${config} \
 ```
 > [!IMPORTANT]
 > In case of memory issues (OOM), you can reduce the overal memory consumption by setting `gradient_checkpointing=true` for `model.denoiser` and `model.compressor` in `config/experiments/*.yaml`. They are set to `false`  by default.
-
+> set environment variable `DEBUG=1` for debugging purposes which disables `torch.compile` for all modules. Note that `torch.compile` is enabled by default for all modules (only used during training step).
 Set the parameters according to your needs. We provide the following configurations files `${config}` for `SceneTok`. Note that you can modifiy/add your own configurations. The configuration for DL3DV finetunes pretrained weights from RealEstate10K, but you can train from scratch as well.
 ```bash
 # RealEstate10
