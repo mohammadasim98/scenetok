@@ -149,6 +149,7 @@ def train(cfg_dict: DictConfig):
         val_check_interval=cfg.trainer.val_check_interval if cfg.trainer.validate else None,
         check_val_every_n_epoch=None,
         enable_checkpointing=cfg.checkpointing.save,
+        default_root_dir=output_dir,
         enable_progress_bar=True if "predict" in cfg.mode else False,
         gradient_clip_val=cfg.trainer.gradient_clip_val,
         max_steps=max_steps,

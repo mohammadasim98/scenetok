@@ -92,7 +92,7 @@ trainer:
   val_check_interval: 5000
   task_steps: null
   accumulate_grad_batches: 1
-  gradient_clip_val: 0.01
+  
 
   precision: bf16-mixed
 
