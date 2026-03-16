@@ -11,13 +11,20 @@ Usage:
 """
 
 import os
+import sys
 import signal
 from pathlib import Path
 from typing import Optional
 
 from lightning.pytorch import Trainer, LightningModule
 from lightning.pytorch.callbacks import Callback
-from lightning.pytorch.utilities import rank_zero_info
+
+
+def _print_flush(msg: str):
+    """Print with immediate flush for signal handlers."""
+    print(msg, flush=True)
+    sys.stdout.flush()
+    sys.stderr.flush()
 
 
 class GracefulExitCallback(Callback):
@@ -52,9 +59,11 @@ class GracefulExitCallback(Callback):
             return
         
         self._received_sigterm = True
-        rank_zero_info("\n" + "="*60)
-        rank_zero_info("SIGTERM received - initiating graceful shutdown...")
-        rank_zero_info("="*60)
+        
+        # Print on all ranks so we know signal was received
+        _print_flush("\n" + "="*60)
+        _print_flush(f"[Rank {self._trainer.global_rank if self._trainer else '?'}] SIGTERM received - initiating graceful shutdown...")
+        _print_flush("="*60)
         
         if self._trainer is not None:
             # Signal the trainer to stop after current batch
@@ -83,7 +92,7 @@ class GracefulExitCallback(Callback):
         temp_path = ckpt_dir / f".{self.checkpoint_name}.tmp"
         
         try:
-            rank_zero_info(f"Saving checkpoint to {final_path}...")
+            _print_flush(f"[Rank 0] Saving checkpoint to {final_path}...")
             
             # Save to temp file first
             self._trainer.save_checkpoint(str(temp_path))
@@ -91,11 +100,11 @@ class GracefulExitCallback(Callback):
             # Atomic rename (on same filesystem, rename is atomic on POSIX)
             os.replace(str(temp_path), str(final_path))
             
-            rank_zero_info(f"Checkpoint saved successfully at step {self._trainer.global_step}")
-            rank_zero_info("="*60 + "\n")
+            _print_flush(f"[Rank 0] Checkpoint saved successfully at step {self._trainer.global_step}")
+            _print_flush("="*60 + "\n")
             
         except Exception as e:
-            rank_zero_info(f"Error saving checkpoint: {e}")
+            _print_flush(f"[Rank 0] Error saving checkpoint: {e}")
             # Clean up temp file on failure
             if temp_path.exists():
                 temp_path.unlink()
@@ -108,7 +117,8 @@ class GracefulExitCallback(Callback):
         
         # Store original handler and install ours
         self._original_handler = signal.signal(signal.SIGTERM, self._sigterm_handler)
-        rank_zero_info(f"GracefulExitCallback: SIGTERM handler registered, checkpoint_dir={self.checkpoint_dir}")
+        if trainer.global_rank == 0:
+            _print_flush(f"GracefulExitCallback: SIGTERM handler registered, checkpoint_dir={self.checkpoint_dir}")
     
     def on_fit_end(self, trainer: Trainer, pl_module: LightningModule):
         """Restore original signal handler."""
@@ -116,10 +126,10 @@ class GracefulExitCallback(Callback):
             signal.signal(signal.SIGTERM, self._original_handler)
             self._original_handler = None
         
-        if self._received_sigterm:
-            rank_zero_info("Training ended gracefully after SIGTERM")
+        if self._received_sigterm and trainer.global_rank == 0:
+            _print_flush("Training ended gracefully after SIGTERM")
     
     def on_exception(self, trainer: Trainer, pl_module: LightningModule, exception: Exception):
         """Handle exceptions - save checkpoint if SIGTERM was received."""
         if self._received_sigterm and not isinstance(exception, SystemExit):
-            rank_zero_info(f"Exception during graceful shutdown: {exception}")
+            _print_flush(f"Exception during graceful shutdown: {exception}")
