@@ -21,7 +21,7 @@ class LatentVADL3DVDataset(LatentDL3DVDataset):
     cfg: LatentVADL3DVDatasetCfg
 
     def _init_model(self):
-        
+        print(f"Loading VA model from {self.cfg.ckpt_path}...")
         self.model = AutoencoderVA(None).from_pretrained(self.cfg.ckpt_path).cuda().eval()
     
     

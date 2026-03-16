@@ -7,47 +7,34 @@ import torch.nn.functional as F
 from tqdm import tqdm
 from pathlib import Path
 from typing import Literal
-from jaxtyping import Float
 from torch.nn import Parameter
-from torch import Tensor, optim, nn
+from torch import optim, nn
 from einops import repeat, rearrange
 from lightning.pytorch import LightningModule
 from typing import Any, Dict, Iterator, Optional
-from lightning.pytorch.utilities import rank_zero_only
 from lightning.pytorch.loggers.wandb import WandbLogger
 from torch.optim.swa_utils import AveragedModel, get_ema_multi_avg_fn
 
-# Custom Imports
-from .types import CameraInputs, CompressorInputs, DenoiserInputs
-from .config import ModelCfg, OptimizerCfg, TestCfg, TrainCfg, FreezeCfg, LRSchedulerCfg, ValCfg
-from .denoiser import get_denoiser, Denoiser
-from .scheduler import get_scheduler
-from .autoencoder import get_autoencoder
-from .compressor import get_compressor
-from .sampler import SamplerListCfg, Sampler, get_sampler, SamplerCfg
-from ..dataset import DatasetCfg
-from ..misc.batch_utils import repeat, sequence_concatenate, preprocess_batch, repeat_batch, sequence_reverse
-from ..misc.step_tracker import StepTracker
-from ..misc.mask_utils import generate_random_context_mask, generate_random_context_mask_tail_decay, generate_biased_boolean_mask, random_mask_biased
-from ..misc.image_io import prep_image, save_image_video
-from ..misc.wandb_tools import log_tensor_as_video
-from ..misc.torch_utils import freeze, unfreeze, convert_to_buffer, freeze_as_buffer
-from ..visualization.annotation import add_label
-from ..visualization.layout import  hcat, vcat
-from ..visualization.camera_trajectory.spline import interpolate_extrinsics_batched
-from .diffusion import get_images, get_latents, last_stage_decode, step, sample
 from .metrics import Metric
+from .denoiser import get_denoiser
+from .scheduler import get_scheduler
+from .compressor import get_compressor
+from .autoencoder import get_autoencoder
+from .diffusion import get_images, get_latents, sample
+from .types import CameraInputs, CompressorInputs, DenoiserInputs
+from .sampler import SamplerListCfg, Sampler, get_sampler, SamplerCfg
+from .config import ModelCfg, OptimizerCfg, TestCfg, TrainCfg, FreezeCfg, ValCfg
+from ..dataset import DatasetCfg
+from ..misc.step_tracker import StepTracker
+from ..misc.wandb_tools import log_tensor_as_video
+from ..misc.image_io import prep_image, save_image_video
+from ..misc.torch_utils import freeze, convert_to_buffer
+from ..misc.batch_utils import repeat, sequence_concatenate, preprocess_batch, repeat_batch, sequence_reverse
+from ..misc.mask_utils import generate_random_context_mask, generate_random_context_mask_tail_decay, generate_biased_boolean_mask, random_mask_biased
+from ..visualization.layout import  hcat
+from ..visualization.annotation import add_label
+from ..visualization.camera_trajectory.spline import interpolate_extrinsics_batched
 
-
-# VA-VAE latent statistics
-latent_mean = torch.tensor([ 0.5985, -0.4992,  0.6440, -0.0971, -1.1910, -1.4332,  0.4685,  0.6259,
-         0.6320, -0.4897, -0.7445,  1.1596,  0.8456,  0.5008,  0.2293,  0.4754,
-        -0.4379,  0.8317, -0.0751,  0.3063,  0.4665, -0.0914, -0.8271,  0.0781,
-         1.4151,  1.3792,  0.2696, -0.7573,  0.2813, -0.3092,  0.0779,  0.3497])[None, None, :, None, None]
-latent_std = torch.tensor([3.8461, 4.2699, 3.5768, 3.5911, 3.6231, 3.4810, 3.3075, 3.5093, 3.5541,
-        3.6067, 3.7058, 3.6314, 3.6295, 3.6205, 3.2590, 3.1868, 3.8258, 3.5999,
-        3.2966, 3.2261, 3.2192, 3.1055, 3.5805, 4.3569, 3.3085, 3.2076, 4.5150,
-        3.4870, 3.0416, 3.4869, 4.4310, 4.0881])[None, None, :, None, None]
 
 class DiffusionWrapper(LightningModule):
     logger: Optional[WandbLogger]
@@ -618,8 +605,8 @@ class DiffusionWrapper(LightningModule):
         if self.global_rank == 0:
             print(
                 # f"Train step {self.step_tracker.get_step()}; "
-                f"scene = {batch['scene']}; "
-                # f"context = {batch['context']['index'].tolist()}; "
+                # f"scene = {batch['scene']}; "
+                f"context = {batch['context']['index'].tolist()}; "
                 f"target = {batch['target']['index'][:, [0, 16, -1]].tolist()}; "
                 f"loss = {loss.item():.4f} lr = {current_lr}"
             )
@@ -806,10 +793,6 @@ class DiffusionWrapper(LightningModule):
             f"Target = {batch['target']['index'].tolist()}; "
         )
 
-        reverse = self.test_cfg.reverse_sequence
-        if reverse:
-            batch["target"] = sequence_concatenate(batch["target"], sequence_reverse(batch["target"]))
-
         b, v_t, *_ = batch["target"]["extrinsics"].shape
         b, v_c, *_ = batch["context"]["extrinsics"].shape
 
@@ -883,9 +866,9 @@ class DiffusionWrapper(LightningModule):
             if step >= warmup_iters and not self.override_applied:
                 for group in self.trainer.optimizers[0].param_groups:
                     ckpt_lr = group["lr"]
-                    if ckpt_lr != self.optimizer_cfg.lr:
-                        group["lr"] = self.optimizer_cfg.lr
-                        self.print(f"[INFO] Warmup done at step {step}. Overriding LR from {ckpt_lr} to {self.optimizer_cfg.lr}")
+                    if ckpt_lr != self.lr:
+                        group["lr"] = self.lr
+                        self.print(f"[INFO] Warmup done at step {step}. Overriding LR from {ckpt_lr} to {self.lr}")
                         self.override_applied = True
         else:
             if self.optimizer_cfg.override_lr is not None and not self.override_applied:
@@ -906,6 +889,26 @@ class DiffusionWrapper(LightningModule):
                 if p.requires_grad and p.grad is None:
                     print("  UNUSED PARAM (no grad):", name)
             print("[DEBUG] End unused-param scan\n")
+        
+        # DEBUG: Compute and log gradient norms
+        grad_norms = []
+        total_norm_sq = 0.0
+        for p in self.parameters():
+            if p.grad is not None:
+                param_norm = p.grad.data.norm(2).item()
+                grad_norms.append(param_norm)
+                total_norm_sq += param_norm ** 2
+        
+        if grad_norms:
+            total_norm = total_norm_sq ** 0.5
+            grad_norms_tensor = torch.tensor(grad_norms)
+            avg_norm = grad_norms_tensor.mean().item()
+            std_norm = grad_norms_tensor.std().item() if len(grad_norms) > 1 else 0.0
+            
+            self.log("grad/total_norm", total_norm, on_step=True, on_epoch=False)
+            self.log("grad/avg_norm", avg_norm, on_step=True, on_epoch=False)
+            self.log("grad/std_norm", std_norm, on_step=True, on_epoch=False)
+        
         # scan all grads for NaN or Inf
         for name, p in self.named_parameters():
             if p.grad is not None:

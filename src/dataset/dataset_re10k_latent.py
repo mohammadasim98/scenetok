@@ -23,7 +23,7 @@ class DatasetRE10kHybridTemporalCfg(DatasetCfgCommon):
     context_root: Path | None
     baseline_epsilon: float
     max_fov: float
-    make_baseline_1: bool
+    make_baseline: bool
     limit_frame_distance: list | None = None
 
 def load_latents(npz_path: str):

@@ -99,12 +99,18 @@ optimizer:
   lr: 1.0e-5
 
   scale_lr: false
-  # override_lr: 2.0e-5
   milestones: [2000]
   scheduler:
-    name: LinearLR
-    frequency: 1
-    interval: step
-    kwargs:
-      start_factor: 5.e-4
-      total_iters: 2000
+    - name: LinearLR
+      frequency: 1
+      interval: step
+      kwargs:
+        start_factor: 5.e-4
+        total_iters: 2000
+
+    - name: MultiStepLR
+      frequency: 1
+      interval: step
+      kwargs:
+        milestones: [500000]
+        gamma: 0.8

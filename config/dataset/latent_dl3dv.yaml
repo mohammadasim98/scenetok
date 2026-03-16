@@ -5,7 +5,7 @@ name: latent
 target_root: null
 context_root: null
 baseline_epsilon: 1.0e-3
-make_baseline_1: false
+make_baseline: false
 map_dict: null
 limit_target_downsample_factor: [1]
 limit_context_downsample_factor: [1]

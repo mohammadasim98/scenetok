@@ -12,10 +12,10 @@ from .model.sampler import SamplerCfg
 @dataclass
 class CheckpointingCfg:
     load: Optional[str]  # Not a path, since it could be something like wandb://...
-    every_n_train_steps: int
-    save_top_k: int
-    resume: bool = False
     save: bool = True
+    resume: bool = False
+    save_top_k: int = 1
+    every_n_train_steps: int | None = None
 
 
 @dataclass

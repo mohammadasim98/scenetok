@@ -156,13 +156,15 @@ First set the `PROJECT_ROOT` as environment variable:
 
 ```bash
 # DL3DV
-bash convert_dl3dv_vavae.sh ${output_dir}
-bash convert_dl3dv_videodc.sh ${output_dir}
+bash convert_dl3dv_vavae.sh ${output_dir} ${root_dir}
+bash convert_dl3dv_videodc.sh ${output_dir} ${root_dir}
 
 # RE10K
-bash convert_re10k_vavae.sh ${output_dir}
-bash convert_re10k_videodc.sh ${output_dir}
+bash convert_re10k_vavae.sh ${output_dir} ${root_dir}
+bash convert_re10k_videodc.sh ${output_dir} ${root_dir}
 ```
+
+Specify `root_dir` as the root directory of the original dataset and `output_dir` as the root directory to which you want to save the computed latents following the same structure as [above](#format)
 
 ### Post-Processing
 Make sure to generate a map dictionary with:

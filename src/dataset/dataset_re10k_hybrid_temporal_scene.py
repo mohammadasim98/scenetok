@@ -87,7 +87,7 @@ class DatasetRE10kHybridTemporalSceneCfg(DatasetCfgCommon):
     context_root: Path | None
     baseline_epsilon: float
     max_fov: float
-    make_baseline_1: bool
+    make_baseline: bool
     limit_frame_distance: list | None = None
     max_cond_number: int=5
 
@@ -220,7 +220,7 @@ class DatasetRE10kHybridTemporalScene(IterableDataset):
             if view_indices.context is not None:
                 context_indices = view_indices.context
                 ctxt_extrinsics = context_extrinsics[context_indices]
-                if ctxt_extrinsics.shape[0] == 2 and self.cfg.make_baseline_1:
+                if ctxt_extrinsics.shape[0] == 2 and self.cfg.make_baseline:
                     a, b = ctxt_extrinsics[:, :3, 3]
                     scale = (a - b).norm()
                     if scale < self.cfg.baseline_epsilon:

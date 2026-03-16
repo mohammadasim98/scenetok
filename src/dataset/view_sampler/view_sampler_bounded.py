@@ -1,11 +1,13 @@
-from dataclasses import dataclass
-from typing import Literal
-
 import torch
-import math
+import numpy as np
+
+from typing import Literal
+from dataclasses import dataclass
+
+from src.misc.camera_utils import fps_from_pose
 from .view_sampler import ViewIndex, ViewSampler, ViewSamplerCfg
 from ..dtypes import Stage
-import numpy as np
+
 @dataclass
 class ViewSamplerBoundedCfg(ViewSamplerCfg):
     name: Literal["bounded"]
@@ -58,6 +60,7 @@ class ViewSamplerBounded(ViewSampler[ViewSamplerBoundedCfg]):
         num_views: int,
         num_latents: int,
         stage: Stage,
+        extrinsics: torch.Tensor,
         **kwargs
     ) -> list[ViewIndex]:
         offset = self.cfg.offset
@@ -229,12 +232,17 @@ class ViewSamplerBounded(ViewSampler[ViewSamplerBoundedCfg]):
 
         indices = []
         if self.cfg.num_context_views > 2:
-            index_context = torch.arange(
-                index_context_left+1,
-                index_context_right
-            )
-            indices = torch.multinomial(torch.ones_like(index_context, dtype=torch.float), num_samples=self.cfg.num_context_views - 2, replacement=False)
-            indices = index_context[indices].tolist()
+            if self.cfg.context_sampling == "uniform":
+                context_indices = torch.linspace(index_context_left, index_context_right + 1, steps=self.cfg.num_context_views).long()
+                indices = context_indices[1:-1].tolist()
+                index_context_left = context_indices[0].item()
+                index_context_right = context_indices[-1].item()
+
+            elif self.cfg.context_sampling == "farthest_point":
+                indices = fps_from_pose(extrinsics[index_context_left+1:index_context_right], self.cfg.num_context_views).tolist()
+
+            else:
+                raise ValueError(f"Unknown context sampling strategy: {self.cfg.context_sampling}")
         # Apply modulo for circular datasets.
         if self.cameras_are_circular:
             if index_target is not None:

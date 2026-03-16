@@ -3,7 +3,7 @@ defaults:
 
 name: re10kv2
 root: ""
-make_baseline_1: true
+make_baseline: true
 augment: false
 random_transform_extrinsics: false
 shape: [256, 256] # [180, 320]

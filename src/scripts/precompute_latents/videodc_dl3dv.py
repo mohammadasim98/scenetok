@@ -17,6 +17,7 @@ class LatentVideoDCDL3DVDataset(LatentDL3DVDataset):
     cfg: LatentVideoDCDL3DVDatasetCfg
 
     def _init_model(self):
+        print(f"Loading DC-AE model from {self.cfg.ckpt_path}...")
 
         # Encode as multiple of 16 in terms of number of views or multiple of 4 in terms of number of latent
         temporal_tile_size = 16

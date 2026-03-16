@@ -10,7 +10,7 @@ target_gap_warm_up_steps: 0
 initial_min_distance_between_context_views: 0
 initial_max_distance_between_context_views: 0
 initial_max_distance_to_context_views: 0
-
+random: false
 num_target_split: 1
 chunk_index_gap: 4
 target_split_prob: 0.8

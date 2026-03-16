@@ -2,8 +2,8 @@
 
 defaults:
   - /model/scene_generator: lightningdit_1p0B_1
-  - override /dataset: re10k_hybrid_temporal_scene
-  - override /dataset/view_sampler: video_va_videodc  
+  - override /dataset: latent_re10k
+  - override /dataset/view_sampler: unbounded  
   - override /model/scheduler: rf
   - override /model/denoiser: lightningdit_L_1
   - override /model/autoencoders/context: va
@@ -49,7 +49,7 @@ model:
     sampling_type: random_chunked_uniform
     num_inference_steps: 25
     kwargs:
-      weighting: logit_normal
+      weighting: shifted
       
       timestep_shift: 12
 

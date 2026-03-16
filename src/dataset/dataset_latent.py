@@ -22,7 +22,7 @@ class DatasetLatentCfg(DatasetCfgCommon):
     target_root: Path | None
     context_root: Path | None
     baseline_epsilon: float
-    make_baseline_1: bool
+    make_baseline: bool
     map_dict: Path | None
     limit_target_downsample_factor: list | None = None
     limit_context_downsample_factor: list | None = None
@@ -163,7 +163,7 @@ class DatasetLatent(Dataset):
         sample = {"scene": scene}
 
         # Scale the extrinsics positions based on the endpoints of the context views
-        if self.cfg.make_baseline_1:
+        if self.cfg.make_baseline:
             ctxt_extrinsics = context_extrinsics[view_indices.context]
             a = ctxt_extrinsics[0, :3, 3]
             b = ctxt_extrinsics[-1, :3, 3]

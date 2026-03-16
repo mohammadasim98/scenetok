@@ -4,6 +4,8 @@ from typing import Literal
 import torch
 import math
 import numpy as np
+
+from src.misc.camera_utils import fps_from_pose
 from .view_sampler import ViewIndex, ViewSampler, ViewSamplerCfg
 
 @dataclass
@@ -33,9 +35,10 @@ class ViewSamplerUnbounded(ViewSampler[ViewSamplerUnboundedCfg]):
         num_views: int,
         num_latents: int,
         stage: str,
+        extrinsics: torch.Tensor,
         **kwargs
     ) -> tuple[ViewIndex, torch.Tensor]:
-        
+        print(num_views, num_latents)
         nsamples = max(self.num_context_views, self.num_target_views * self.cfg.temporal_downsample)
         if num_latents < self.num_target_views:
             raise ValueError(f"Example has less number of frames --> {num_views} < {nsamples} and {num_latents} < {self.num_target_views}!")
@@ -69,7 +72,16 @@ class ViewSamplerUnbounded(ViewSampler[ViewSamplerUnboundedCfg]):
             index_unrolled.append(torch.arange(target[0]*self.cfg.temporal_downsample, target[-1]*self.cfg.temporal_downsample+self.cfg.temporal_downsample))
         index_targets = torch.concat(index_targets)
         index_unrolled = torch.concat(index_unrolled)
-        return ViewIndex(None, index_unrolled), index_targets 
+        if self.cfg.context_sampling == "uniform":
+            context_indices = torch.linspace(0, num_views - 1, steps=num_context_views).long()
+
+        elif self.cfg.context_sampling == "farthest_point":
+            context_indices = fps_from_pose(extrinsics, num_context_views).tolist()
+
+        else:
+            raise ValueError(f"Unknown context sampling strategy: {self.cfg.context_sampling}")
+        print(index_unrolled, index_targets)
+        return ViewIndex(context_indices, index_unrolled), index_targets 
         
  
 

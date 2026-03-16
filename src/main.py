@@ -1,29 +1,21 @@
 
 
-import time
 
-import warnings
-warnings.simplefilter(action='ignore', category=FutureWarning)
 
 
 import os
-from pathlib import Path
 import hydra
-import torch
-# from src.model.schedulers import IterationListLRScheduler
-start = time.time()
-from torch import manual_seed, load
-print("Loading PyTorch: ", time.time() - start)
 import wandb
+import warnings
+
+from pathlib import Path
+from torch import manual_seed, load
 from colorama import Fore
-from jaxtyping import install_import_hook
 from omegaconf import DictConfig, OmegaConf
 
-start = time.time()
 from lightning.pytorch import Trainer
 from lightning.pytorch.callbacks import LearningRateMonitor, ModelCheckpoint
 from lightning.pytorch.loggers.wandb import WandbLogger
-print("Loading PyTorch: ", time.time() - start)
 
 from src.config import load_typed_root_config
 from src.dataset.data_module import DataModule
@@ -31,9 +23,11 @@ from src.global_cfg import set_cfg
 from src.misc.LocalLogger import LocalLogger
 from src.misc.step_tracker import StepTracker
 from src.misc.wandb_tools import update_checkpoint_path
+from src.misc.graceful_exit import GracefulExitCallback
 from src.model.diffusion_wrapper import DiffusionWrapper
 from src.profiler import get_profiler
 
+warnings.simplefilter(action='ignore', category=FutureWarning)
 
 def cyan(text: str) -> str:
     return f"{Fore.CYAN}{text}{Fore.RESET}"
@@ -45,7 +39,7 @@ def cyan(text: str) -> str:
     config_name="main",
 )
 def train(cfg_dict: DictConfig):
-    print(cfg_dict.dataset)
+    # print(cfg_dict.dataset)
     cfg = load_typed_root_config(cfg_dict)
     set_cfg(cfg_dict)
     if cfg_dict.seed is not None:
@@ -82,30 +76,21 @@ def train(cfg_dict: DictConfig):
     # Set up checkpointing.
     checkpoint_dir = output_dir / "checkpoints"
     if cfg.checkpointing.save:
-        callbacks.append(
-            ModelCheckpoint(
-                checkpoint_dir,
-                every_n_train_steps=cfg.checkpointing.every_n_train_steps,
-                save_top_k=cfg.checkpointing.save_top_k,
-                save_last=True,
-                save_on_train_epoch_end=False,
-                verbose=True,
-                enable_version_counter=False
+        if cfg.checkpointing.every_n_train_steps is not None:
+            callbacks.append(
+                ModelCheckpoint(
+                    checkpoint_dir,
+                    every_n_train_steps=cfg.checkpointing.every_n_train_steps,
+                    save_top_k=cfg.checkpointing.save_top_k,
+                    save_last=True,
+                    save_on_train_epoch_end=False,
+                    verbose=True,
+                    enable_version_counter=False
+                )
             )
-        )
-        # callbacks.append(
-        #     ModelCheckpoint(
-        #         checkpoint_dir,
-        #         filename=f"best-lpips",
-        #         verbose=True,
-        #         mode="min",
-        #         monitor="lpips",
-        #         save_on_train_epoch_end=False,
-        #         enable_version_counter=False,
-                
-        #     )
-        # )
-    # callbacks.append(DetectNanGradients())
+        # Add graceful exit handler for SLURM preemption signals
+        callbacks.append(GracefulExitCallback(checkpoint_dir=checkpoint_dir))
+
     # Prepare the checkpoint for loading.
     checkpoint_path = checkpoint_dir / "last.ckpt"
     if os.path.exists(checkpoint_path):
@@ -141,16 +126,12 @@ def train(cfg_dict: DictConfig):
         model_wrapper = DiffusionWrapper(**kwargs)
     data_module = DataModule(cfg.dataset, cfg.data_loader, step_tracker)
 
-    # torch.serialization.add_safe_globals([IterationListLRScheduler])
 
 
     step = load(checkpoint_path, "cpu", weights_only=False)["global_step"] if cfg.mode == "train" and checkpoint_path is not None else 0
     max_steps = cfg.trainer.max_steps if cfg.trainer.task_steps is None else min(step+cfg.trainer.task_steps, cfg.trainer.max_steps)
 
     val_dataloaders = data_module.val_dataloader()
-    
-    # if len(val_dataloaders) > 1:
-    #     callbacks.append(MultiValidationCallback(cfg=cfg.data_loader.val["evaluate"], dataloader=val_dataloaders["evaluate"]))
 
     print("Number of nodes: ", cfg.trainer.num_nodes)
     print("Number of devices/node: ", cfg.trainer.devices)

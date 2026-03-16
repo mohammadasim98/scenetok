@@ -1,9 +1,10 @@
 name: unbounded
 
-num_context_views: 16
-num_target_views: 8
+num_context_views: 0
+num_target_views: 0
 temporal_downsample: 4
 temporal_tile_size: 16
 starting_index_gap: 4
-
+target_split_prob: 0.8
+num_target_split: 1
 context_sampling: "farthest_point"

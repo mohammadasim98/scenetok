@@ -28,7 +28,7 @@ class DatasetRE10kV2Cfg(DatasetCfgCommon):
     root: Path | None
     baseline_epsilon: float
     max_fov: float
-    make_baseline_1: bool
+    make_baseline: bool
     max_cond_number: int=3
 
 
@@ -94,7 +94,7 @@ class DatasetRE10kV2(Dataset):
 
             # Resize the world to make the baseline 1.
             context_extrinsics = extrinsics[view_index.context]
-            if context_extrinsics.shape[0] == 2 and self.cfg.make_baseline_1:
+            if context_extrinsics.shape[0] == 2 and self.cfg.make_baseline:
                 a, b = context_extrinsics[:, :3, 3]
                 scale = (a - b).norm()
                 if scale < self.cfg.baseline_epsilon:

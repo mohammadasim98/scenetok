@@ -83,7 +83,7 @@ data_loader:
 checkpointing:
   load: null
   resume: false
-  every_n_train_steps: 500
+  every_n_train_steps: null # Set to null to only save at the end of training for SLURM Job Arrays. Set to an int value to save checkpoints every n steps.
   save_top_k: 1
 
 train:

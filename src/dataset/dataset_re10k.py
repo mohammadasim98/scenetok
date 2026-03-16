@@ -28,7 +28,7 @@ class DatasetRE10kCfg(DatasetCfgCommon):
     root: Path | None
     baseline_epsilon: float
     max_fov: float
-    make_baseline_1: bool
+    make_baseline: bool
 
 
 class DatasetRE10k(IterableDataset):

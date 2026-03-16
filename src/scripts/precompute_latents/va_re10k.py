@@ -21,7 +21,8 @@ class LatentVARE10KDataset(LatentRE10KDataset):
     cfg: LatentVARE10KDatasetCfg
 
     def _init_model(self):
-        
+        print(f"Loading VA model from {self.cfg.ckpt_path}...")
+
         self.model = AutoencoderVA(None).from_pretrained(self.cfg.ckpt_path).cuda().eval()
     
     

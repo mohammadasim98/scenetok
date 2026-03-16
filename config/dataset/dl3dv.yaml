@@ -10,7 +10,7 @@ precomputed_latents:
   target: false
 baseline_epsilon: 1e-3
 
-make_baseline_1: false
+make_baseline: false
 augment: true
 cameras_are_circular: false
 

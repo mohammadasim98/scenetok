@@ -10,19 +10,14 @@ import os
 from pathlib import Path
 import hydra
 
-start = time.time()
 from torch import manual_seed, load
-print("Loading PyTorch: ", time.time() - start)
 import wandb
 from colorama import Fore
-from jaxtyping import install_import_hook
 from omegaconf import DictConfig, OmegaConf
 
-start = time.time()
 from lightning.pytorch import Trainer
 from lightning.pytorch.callbacks import LearningRateMonitor, ModelCheckpoint
 from lightning.pytorch.loggers.wandb import WandbLogger
-print("Loading PyTorch: ", time.time() - start)
 
 from src.config import load_typed_root_config
 from src.dataset.data_module import DataModule
@@ -30,7 +25,7 @@ from src.global_cfg import set_cfg
 from src.misc.LocalLogger import LocalLogger
 from src.misc.step_tracker import StepTracker
 from src.misc.wandb_tools import update_checkpoint_path
-from src.model.callbacks import MultiValidationCallback, DetectNanGradients
+from src.misc.graceful_exit import GracefulExitCallback
 from src.model.scene_wrapper import SceneWrapper
 from src.profiler import get_profiler
 
@@ -81,30 +76,20 @@ def train(cfg_dict: DictConfig):
     # Set up checkpointing.
     checkpoint_dir = output_dir / "checkpoints"
     if cfg.checkpointing.save:
-        callbacks.append(
-            ModelCheckpoint(
-                checkpoint_dir,
-                every_n_train_steps=cfg.checkpointing.every_n_train_steps,
-                save_top_k=cfg.checkpointing.save_top_k,
-                save_last=True,
-                save_on_train_epoch_end=False,
-                verbose=True,
-                enable_version_counter=False
+        if cfg.checkpointing.every_n_train_steps is not None:
+            callbacks.append(
+                ModelCheckpoint(
+                    checkpoint_dir,
+                    every_n_train_steps=cfg.checkpointing.every_n_train_steps,
+                    save_top_k=cfg.checkpointing.save_top_k,
+                    save_last=True,
+                    save_on_train_epoch_end=False,
+                    verbose=True,
+                    enable_version_counter=False
+                )
             )
-        )
-        # callbacks.append(
-        #     ModelCheckpoint(
-        #         checkpoint_dir,
-        #         filename=f"best-fid",
-        #         verbose=True,
-        #         mode="min",
-        #         monitor="fid",
-        #         save_on_train_epoch_end=False,
-        #         enable_version_counter=False,
-                
-        #     )
-        # )
-    # callbacks.append(DetectNanGradients())
+        # Add graceful exit handler for SLURM preemption signals
+        callbacks.append(GracefulExitCallback(checkpoint_dir=checkpoint_dir))
     # Prepare the checkpoint for loading.
     checkpoint_path = checkpoint_dir / "last.ckpt"
     if os.path.exists(checkpoint_path):

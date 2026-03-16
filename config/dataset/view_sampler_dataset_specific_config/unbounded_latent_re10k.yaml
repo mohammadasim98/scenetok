@@ -1,0 +1,8 @@
+# @package _global_
+
+dataset:
+  view_sampler:
+
+    num_context_views: 12
+    num_target_views: 8
+
