@@ -2,7 +2,7 @@
 
 # Job constants
 PARTITION="gpu20"  # GPU Partition
-TIME="00-01:00:00"
+TIME="00-02:00:00"
 CPUS="10"
 
 

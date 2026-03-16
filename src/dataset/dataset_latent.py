@@ -98,16 +98,13 @@ class DatasetLatent(Dataset):
         # Get context chunk (different since we use video latents for targets)
         context_chunk = chunk
         context_downsample = str(self.cfg.limit_context_downsample_factor[downsample_idx-1])
-        try:
-            if os.path.exists(self.context_root / context_downsample / context_chunk):
-                context_latents, context_extrinsics, context_intrinsics = load_data(self.context_root / context_downsample / context_chunk, key="latent")
-            else:
-                print(f"Refetching example due to file not found at {self.context_root}/{context_downsample}/{context_chunk}")
-                return self.__getitem__(index)
-        except:
-            print(f"Refetching example due to an unkown error")
 
+        if os.path.exists(self.context_root / context_downsample / context_chunk):
+            context_latents, context_extrinsics, context_intrinsics = load_data(self.context_root / context_downsample / context_chunk, key="latent")
+        else:
+            print(f"Refetching example due to file not found at {self.context_root}/{context_downsample}/{context_chunk}")
             return self.__getitem__(index)
+
 
         # Get target chunk
         downsample_idx = torch.randint(1, len(self.cfg.limit_target_downsample_factor)+1, (1, ))
@@ -115,15 +112,13 @@ class DatasetLatent(Dataset):
 
         target_chunk = chunk
         target_downsample = str(self.cfg.limit_target_downsample_factor[downsample_idx-1])
-        try:
-            if os.path.exists(self.target_root / target_downsample / target_chunk):
-                target_latents, target_extrinsics, target_intrinsics = load_data(self.target_root / target_downsample / target_chunk, key="latent")
-            else:
-                print(f"Refetching example due to file not found at {self.target_root}/{target_downsample}/{target_chunk}")
-                return self.__getitem__(index)
-        except:
-            print(f"Refetching example due to an unkown error")
+
+        if os.path.exists(self.target_root / target_downsample / target_chunk):
+            target_latents, target_extrinsics, target_intrinsics = load_data(self.target_root / target_downsample / target_chunk, key="latent")
+        else:
+            print(f"Refetching example due to file not found at {self.target_root}/{target_downsample}/{target_chunk}")
             return self.__getitem__(index)
+
         
 
         # NOTE: Sample indices

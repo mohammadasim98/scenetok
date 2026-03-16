@@ -604,10 +604,10 @@ class DiffusionWrapper(LightningModule):
         current_lr = opt.param_groups[0]["lr"]
         if self.global_rank == 0:
             print(
-                # f"Train step {self.step_tracker.get_step()}; "
+                f"Train step {self.step_tracker.get_step()}; "
                 # f"scene = {batch['scene']}; "
-                f"context = {batch['context']['index'].tolist()}; "
-                f"target = {batch['target']['index'][:, [0, 16, -1]].tolist()}; "
+                # f"context = {batch['context']['index'].tolist()}; "
+                # f"target = {batch['target']['index'][:, [0, 16, -1]].tolist()}; "
                 f"loss = {loss.item():.4f} lr = {current_lr}"
             )
         self.log("loss/diffusion", loss) 

@@ -239,7 +239,9 @@ class ViewSamplerBounded(ViewSampler[ViewSamplerBoundedCfg]):
                 index_context_right = context_indices[-1].item()
 
             elif self.cfg.context_sampling == "farthest_point":
-                indices = fps_from_pose(extrinsics[index_context_left+1:index_context_right], self.cfg.num_context_views).tolist()
+                context_indices = torch.arange(0, num_views).long()
+                fps_indices = fps_from_pose(extrinsics[index_context_left:index_context_right+1].float(), n_samples=self.cfg.num_context_views).tolist()
+                indices = context_indices[index_context_left:index_context_right+1][fps_indices[1:-1]].tolist()
 
             else:
                 raise ValueError(f"Unknown context sampling strategy: {self.cfg.context_sampling}")

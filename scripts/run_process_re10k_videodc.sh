@@ -2,7 +2,7 @@
 
 # Job constants
 PARTITION="gpu20"  # GPU Partition
-TIME="00-01:00:00" # 20 mins for 256x256, ~1 hour for 512x512
+TIME="00-02:00:00" # 20 mins for 256x256, ~1 hour for 512x512
 CPUS="10"
 
 
@@ -42,7 +42,7 @@ echo "#SBATCH --gres gpu:1" >> $jobscript
 
 echo "echo -n 'date: ';(date '+%Y-%m-%d %H:%M:%S')" >> $jobscript
 
-echo "conda activate scenetok" >>  $jobscript # <-- Change if using another environment manager
+# echo "conda activate scenetok" >>  $jobscript # <-- Change if using another environment manager
 echo 'echo "${SLURM_ARRAY_TASK_ID}"' >> $jobscript
 echo 'cd "${PROJECT_ROOT}"' >> $jobscript
 
