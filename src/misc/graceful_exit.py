@@ -91,24 +91,17 @@ class GracefulExitCallback(Callback):
         final_path = ckpt_dir / self.checkpoint_name
         temp_path = ckpt_dir / f".{self.checkpoint_name}.tmp"
         
-        try:
-            _print_flush(f"[Rank 0] Saving checkpoint to {final_path}...")
-            
-            # Save to temp file first
-            self._trainer.save_checkpoint(str(temp_path))
-            
-            # Atomic rename (on same filesystem, rename is atomic on POSIX)
-            os.replace(str(temp_path), str(final_path))
-            
-            _print_flush(f"[Rank 0] Checkpoint saved successfully at step {self._trainer.global_step}")
-            _print_flush("="*60 + "\n")
-            
-        except Exception as e:
-            _print_flush(f"[Rank 0] Error saving checkpoint: {e}")
-            # Clean up temp file on failure
-            if temp_path.exists():
-                temp_path.unlink()
-            raise
+        _print_flush(f"[Rank 0] Saving checkpoint to {final_path}...")
+        
+        # Save to temp file first
+        self._trainer.save_checkpoint(str(final_path))
+        
+        # Atomic rename (on same filesystem, rename is atomic on POSIX)
+        # os.replace(str(temp_path), str(final_path))
+        
+        _print_flush(f"[Rank 0] Checkpoint saved successfully at step {self._trainer.global_step}")
+        _print_flush("="*60 + "\n")
+
     
     def on_fit_start(self, trainer: Trainer, pl_module: LightningModule):
         """Register SIGTERM handler when training starts."""
