@@ -76,18 +76,18 @@ def train(cfg_dict: DictConfig):
     # Set up checkpointing.
     checkpoint_dir = output_dir / "checkpoints"
     if cfg.checkpointing.save:
-        if cfg.checkpointing.every_n_train_steps is not None:
-            callbacks.append(
-                ModelCheckpoint(
-                    checkpoint_dir,
-                    every_n_train_steps=cfg.checkpointing.every_n_train_steps,
-                    save_top_k=cfg.checkpointing.save_top_k,
-                    save_last=True,
-                    save_on_train_epoch_end=False,
-                    verbose=True,
-                    enable_version_counter=False
-                )
+        # if cfg.checkpointing.every_n_train_steps is not None:
+        callbacks.append(
+            ModelCheckpoint(
+                checkpoint_dir,
+                every_n_train_steps=cfg.checkpointing.every_n_train_steps,
+                save_top_k=cfg.checkpointing.save_top_k,
+                save_last=True,
+                save_on_train_epoch_end=False,
+                verbose=True,
+                enable_version_counter=False
             )
+        )
         # Add graceful exit handler for SLURM preemption signals
         callbacks.append(GracefulExitCallback(checkpoint_dir=checkpoint_dir))
 

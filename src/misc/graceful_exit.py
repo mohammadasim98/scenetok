@@ -67,10 +67,8 @@ class GracefulExitCallback(Callback):
         
         if self._trainer is not None:
             # Signal the trainer to stop after current batch
+            # Lightning's ModelCheckpoint will save last.ckpt on clean exit
             self._trainer.should_stop = True
-            
-            # Save checkpoint immediately (atomic write)
-            self._save_checkpoint_atomic()
     
     def _save_checkpoint_atomic(self):
         """Save checkpoint atomically to prevent corruption."""
