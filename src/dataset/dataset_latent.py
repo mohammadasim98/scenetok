@@ -29,7 +29,7 @@ class DatasetLatentCfg(DatasetCfgCommon):
     random_flip: bool=True
     context_latent_type: Literal["va", "wan_single"] = "va"
     target_latent_type: Literal["videodc", "wan"] = "videodc"
-
+    scale_focal_by_256: bool=False # Allow backward compatibility with va-videodc, refer to docs/KNOWN_BUG.md
 class DatasetLatent(Dataset):
     cfg: DatasetLatentCfg
     stage: Stage
@@ -172,6 +172,13 @@ class DatasetLatent(Dataset):
             target_extrinsics[:, :3, 3] /= scale
             context_extrinsics[:, :3, 3] /= scale
         
+        if self.cfg.scale_focal_by_256:
+            sample["context"]["intrinsics"][..., 0, 0] *= 3840/256
+            sample["context"]["intrinsics"][..., 1, 1] *= 2160/256
+
+            sample["target"]["intrinsics"][..., 0, 0] *= 3840/256
+            sample["target"]["intrinsics"][..., 1, 1] *= 2160/256
+
         # Index and return data
         if view_indices.context is not None:
 

@@ -17,3 +17,6 @@ cameras_are_circular: false
 precomputed_latents: 
   context: true
   target: true
+
+# Kown Bug: refer to docs/KNOWN_BUGS.md
+scale_focal_by_256: false

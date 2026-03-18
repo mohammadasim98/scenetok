@@ -48,8 +48,9 @@ echo "#SBATCH --gres gpu:${GPUS}" >> $jobscript
 
 echo "echo -n 'date: ';(date '+%Y-%m-%d %H:%M:%S')" >> $jobscript
 echo 'trap "trap ' ' TERM INT; kill -TERM 0; wait" TERM INT' >> $jobscript
-# echo "conda activate scenetok" >>  $jobscript # <-- Change if using another environment manager
-# echo 'cd "${PROJECT_ROOT}"' >> $jobscript
+
+echo "conda activate scenetok" >>  $jobscript # <-- Change if using another environment manager
+echo 'cd "${PROJECT_ROOT}"' >> $jobscript
 
 echo "srun --mem-per-gpu=${MEMORY} python -m src.main +experiment=${config} data_loader.train.num_workers=${CPUS} hydra.run.dir=./outputs/${config}/${id} mode=train hydra.job.name=train trainer.task_steps=${TASK_STEPS} trainer.devices=${GPUS} trainer.num_nodes=${NUM_NODES} &" >> $jobscript
 echo "wait" >> $jobscript
