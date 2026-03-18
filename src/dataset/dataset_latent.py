@@ -178,11 +178,11 @@ class DatasetLatent(Dataset):
             context_extrinsics[:, :3, 3] /= scale
         
         if self.cfg.scale_focal_by_256:
-            sample["context"]["intrinsics"][..., 0, 0] *= 3840/256
-            sample["context"]["intrinsics"][..., 1, 1] *= 2160/256
+            context_intrinsics[..., 0, 0] *= 3840/256
+            context_intrinsics[..., 1, 1] *= 2160/256
 
-            sample["target"]["intrinsics"][..., 0, 0] *= 3840/256
-            sample["target"]["intrinsics"][..., 1, 1] *= 2160/256
+            target_intrinsics[..., 0, 0] *= 3840/256
+            target_intrinsics[..., 1, 1] *= 2160/256
 
         # Index and return data
         if view_indices.context is not None:
