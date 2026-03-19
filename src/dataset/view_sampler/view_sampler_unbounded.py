@@ -38,7 +38,6 @@ class ViewSamplerUnbounded(ViewSampler[ViewSamplerUnboundedCfg]):
         extrinsics: torch.Tensor,
         **kwargs
     ) -> tuple[ViewIndex, torch.Tensor]:
-        print(num_views, num_latents)
         nsamples = max(self.num_context_views, self.num_target_views * self.cfg.temporal_downsample)
         if num_latents < self.num_target_views:
             raise ValueError(f"Example has less number of frames --> {num_views} < {nsamples} and {num_latents} < {self.num_target_views}!")
@@ -80,7 +79,6 @@ class ViewSamplerUnbounded(ViewSampler[ViewSamplerUnboundedCfg]):
 
         else:
             raise ValueError(f"Unknown context sampling strategy: {self.cfg.context_sampling}")
-        print(index_unrolled, index_targets)
         return ViewIndex(context_indices, index_unrolled), index_targets 
         
  
