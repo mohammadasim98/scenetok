@@ -110,8 +110,6 @@ class ViewSamplerBounded(ViewSampler[ViewSamplerBoundedCfg]):
             max_target_gap = self.cfg.max_distance_to_context_views
         # Pick the gap between the context views.
         if max_context_gap < min_context_gap:
-            # max_context_gap = min_context_gap
-            # context_gap = max_context_gap
             raise ValueError(f"Example does not have enough frames! {max_context_gap} <= f <= {min_context_gap}, and num views: {num_views}")
         elif max_context_gap == min_context_gap:
             context_gap = max_context_gap
@@ -128,8 +126,7 @@ class ViewSamplerBounded(ViewSampler[ViewSamplerBoundedCfg]):
             high=num_views if self.cameras_are_circular else num_views - context_gap,
             size=tuple()
         ).item()
-        # if self.stage == "test":
-        #     index_context_left = index_context_left * 0
+
         index_context_right = index_context_left + context_gap
 
         index_unrolled = None
@@ -145,35 +142,23 @@ class ViewSamplerBounded(ViewSampler[ViewSamplerBoundedCfg]):
             
 
             # Pick the target view indices.
-
             num_target_views = self.cfg.num_target_views
             chunk_index_gap = self.cfg.chunk_index_gap
-            # When training or validating (visualizing), pick at random.
-
 
             if offset == 0:
                 num_latents = num_views // temporal_downsample
                 start = ((index_target_left // temporal_downsample) // chunk_index_gap) * chunk_index_gap
                 end = ((index_target_right // temporal_downsample) // chunk_index_gap) * chunk_index_gap
-
             else:
-                # print(num_views, num_latents)
-                # print(index_target_left, index_target_right)
                 start = self.original_to_latent_index(index_target_left)
                 end = self.original_to_latent_index(index_target_right)
-                # print(start, end)
                 start = (start // chunk_index_gap) * chunk_index_gap
                 end = (end // chunk_index_gap) * chunk_index_gap
-                # print(start, end)
             try:
                 starting_indices = torch.arange(start, end - num_target_views + 1, chunk_index_gap)
             except:
-                print(start, end)
-                print(max_context_gap, min_context_gap)
-                print(index_context_left, index_context_right)
-                print(num_views, num_latents)
+
                 raise ValueError("Error in generating starting indices")
-            # print(starting_indices)
             num_target_split = min(len(starting_indices), num_target_split)
             index_target = torch.arange(0, num_latents).long()
             if np.random.choice([True, False], size=1, p=[1 - self.cfg.target_split_prob, self.cfg.target_split_prob]):
@@ -182,10 +167,8 @@ class ViewSamplerBounded(ViewSampler[ViewSamplerBoundedCfg]):
             idxs = torch.multinomial(torch.ones_like(starting_indices).float(), num_target_split, replacement=False)
             index_targets = []
             index_unrolled = []
-            # print(index_target)
             for idx in idxs:
                 starting_index = starting_indices[idx]
-                # print(starting_index, starting_index + num_target_views // num_target_split)
                 target = index_target[starting_index:starting_index + num_target_views // num_target_split]
                 index_targets.append(target)
 
@@ -196,11 +179,7 @@ class ViewSamplerBounded(ViewSampler[ViewSamplerBoundedCfg]):
 
                         start = self.latent_to_original_index(target[0])
                     except IndexError as err:
-                        print("Num views: ", num_views)
-                        print("Num latents: ", num_latents)
-                        print("Starting Index list: ", starting_indices)
-                        print("Selected Index list: ", idxs)
-                        print("Target list: ", target)
+                        
                         print("Error: ", err)
                         return self.sample(num_views=num_views, num_latents=num_latents)
 
@@ -209,9 +188,7 @@ class ViewSamplerBounded(ViewSampler[ViewSamplerBoundedCfg]):
 
                         end = self.latent_to_original_index(target[-1]+1)
                     except IndexError as err:
-                        print("Starting Index list: ", starting_indices)
-                        print("Selected Index list: ", idxs)
-                        print("Target list: ", target)
+
                         print("Error: ", err)
                         return self.sample(num_views=num_views, num_latents=num_latents)
 
@@ -220,20 +197,14 @@ class ViewSamplerBounded(ViewSampler[ViewSamplerBoundedCfg]):
                 index_unrolled.append(idx_unrolled)
             index_target = torch.concat(index_targets)
             index_unrolled = torch.concat(index_unrolled)
-            if len(index_unrolled) < 34 and offset==1:
-                print(num_views, num_latents)
-                print(start, end)
-                print(starting_index, starting_index + num_target_views // num_target_split)
-                print("Starting Index list: ", starting_indices)
-                print("Selected Index list: ", idxs)
-                print("Target list: ", index_target)
+
         else:
             index_target = None
 
         indices = []
         if self.cfg.num_context_views > 2:
             if self.cfg.context_sampling == "uniform":
-                context_indices = torch.linspace(index_context_left, index_context_right + 1, steps=self.cfg.num_context_views).long()
+                context_indices = torch.linspace(index_context_left, index_context_right, steps=self.cfg.num_context_views).long()
                 indices = context_indices[1:-1].tolist()
                 index_context_left = context_indices[0].item()
                 index_context_right = context_indices[-1].item()
