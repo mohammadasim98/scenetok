@@ -18,10 +18,6 @@ dataset:
   target_root: "dataset/dl3dv_wan_latents" 
   map_dict: dataset/dl3dv_vavae_latents/map_dict.json
 
-  shape: [256, 256] 
-
-  limit_frame_distance: [1]
-
   # NOTE: Allow compatibility with va-wan, refer to docs/KNOWN_BUG.md
   scale_context_focal_by_256: true
 

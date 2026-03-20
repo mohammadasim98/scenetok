@@ -16,7 +16,7 @@ T = TypeVar("T")
 class ViewIndex:
     context: Int64[Tensor, " context_view"]             # indices for context views
     target: Int64[Tensor, " target_view"] | None = None # indices for target views
-
+    cond: Int64[Tensor, " cond_view"] | None = None # indices for conditional views, used in scene generation setting
 @dataclass
 class ViewSamplerCfg:
     num_context_views: int

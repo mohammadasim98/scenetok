@@ -2,24 +2,19 @@ defaults:
   - view_sampler: unbounded
 
 name: latent
-context_root: null
+shape: [256, 256]
 target_root: null
+context_root: null
+baseline_epsilon: 1.0e-3
 make_baseline: false
-augment: false
-random_transform_extrinsics: false
-shape: [256, 256] # [180, 320]
+map_dict: null
+limit_target_downsample_factor: [1]
+limit_context_downsample_factor: [1]
+random_flip: true
+context_latent_type: "va"
+target_latent_type: "videodc"
+augment: true
 cameras_are_circular: false
 precomputed_latents: 
   context: true
   target: true
-baseline_epsilon: 1e-3
-
-limit_context_downsample_factor: [1] # There is no temporal downsampling for contexts so always set to 1
-limit_target_downsample_factor: [1] # Usually we also train for downsampling factor of 1 but you can modify as you wish
-
-random_flip: True
-context_latent_type: "va"
-target_latent_type: "videodc"
-max_cond_number: 3
-
-

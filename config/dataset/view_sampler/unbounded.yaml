@@ -4,7 +4,11 @@ num_context_views: 0
 num_target_views: 0
 temporal_downsample: 4
 temporal_tile_size: 16
-starting_index_gap: 4
+chunk_index_gap: 4
+offset: 0
 target_split_prob: 0.8
 num_target_split: 1
+min_context_views: 0
 context_sampling: "farthest_point"
+sample_cond_views: false # Enable for scene generation setting, where we want to sample extra conditional views in addition to context views
+max_cond_number: 1 # Set the max conditioning views for scene generation setting

@@ -14,11 +14,13 @@ class ViewSamplerUnboundedCfg(ViewSamplerCfg):
     
     temporal_downsample: int=4
     temporal_tile_size: int=16
-    starting_index_gap: int=8
+    chunk_index_gap: int=4
+    offset: int=0
     min_context_views: int=1
     num_target_split: int=1
     target_split_prob: float=0.5
-
+    sample_cond_views: bool=False
+    max_cond_number: int=1
 class ViewSamplerUnbounded(ViewSampler[ViewSamplerUnboundedCfg]):
     
     def schedule(
@@ -43,9 +45,9 @@ class ViewSamplerUnbounded(ViewSampler[ViewSamplerUnboundedCfg]):
             raise ValueError(f"Example has less number of frames --> {num_views} < {nsamples} and {num_latents} < {self.num_target_views}!")
         
         if stage == "train":
-            starting_index_gap = self.cfg.starting_index_gap
+            chunk_index_gap = self.cfg.chunk_index_gap
         else:
-            starting_index_gap = 8
+            chunk_index_gap = 8
 
 
         num_target_views = self.num_target_views
@@ -53,7 +55,7 @@ class ViewSamplerUnbounded(ViewSampler[ViewSamplerUnboundedCfg]):
         num_target_split = self.cfg.num_target_split if stage == "train" else 1
         index_target = torch.arange(0, num_latents).long()
 
-        starting_indices = torch.arange(0, num_latents - num_target_views + 1, starting_index_gap)
+        starting_indices = torch.arange(0, num_latents - num_target_views + 1, chunk_index_gap)
         
         
         num_target_split = min(len(starting_indices), num_target_split)
@@ -72,14 +74,27 @@ class ViewSamplerUnbounded(ViewSampler[ViewSamplerUnboundedCfg]):
         index_targets = torch.concat(index_targets)
         index_unrolled = torch.concat(index_unrolled)
         if self.cfg.context_sampling == "uniform":
-            context_indices = torch.linspace(0, num_views - 1, steps=num_context_views).long()
+            context_indices = torch.linspace(0, extrinsics.shape[0] - 1, steps=num_context_views).long()
 
         elif self.cfg.context_sampling == "farthest_point":
-            context_indices = fps_from_pose(extrinsics, num_context_views).tolist()
+            context_indices = fps_from_pose(extrinsics.float(), num_context_views)
 
         else:
             raise ValueError(f"Unknown context sampling strategy: {self.cfg.context_sampling}")
-        return ViewIndex(context_indices, index_unrolled), index_targets 
+        
+
+        if self.cfg.sample_cond_views:
+            
+            ref_idx = torch.randint(0, len(context_indices), size=(1, ))
+            weights = torch.ones((extrinsics.shape[0], )).float()
+            weights[context_indices[ref_idx]] = 0.0 # Ensure we don't sample the reference view again
+            cond_indices = torch.multinomial(weights, self.cfg.max_cond_number - 1, replacement=False)
+            cond_indices = torch.concat([context_indices[ref_idx], cond_indices])
+
+        else:
+            cond_indices = None
+
+        return ViewIndex(context_indices, index_unrolled, cond=cond_indices), index_targets 
         
  
 

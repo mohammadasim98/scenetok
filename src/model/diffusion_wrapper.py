@@ -82,6 +82,7 @@ class DiffusionWrapper(LightningModule):
 
         # self.automatic_optimization = False
 
+        print("(Main Model) Optimize DDP: ", model_cfg.optimize_ddp)
         print("(Main Model) Using Plucker Coordinates: ", model_cfg.use_plucker)
         print("(Main Model) Using Compressor: ", True if model_cfg.compressor is not None else False)
         print("(Main Model) Using SRT Ray Encoding: ", self.model_cfg.srt_ray_encoding)

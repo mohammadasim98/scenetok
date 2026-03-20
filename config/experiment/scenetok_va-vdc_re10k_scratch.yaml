@@ -18,10 +18,6 @@ dataset:
   target_root: "dataset/re10k_videodc_latents" 
   map_dict: dataset/re10k_vavae_latents/map_dict.json
 
-
-  shape: [256, 256] 
-
-
   view_sampler:
     num_target_split: 2
 

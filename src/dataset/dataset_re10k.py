@@ -20,7 +20,7 @@ from .shims.random_transform_shim import apply_random_transform_shim
 from .shims.crop_shim import apply_crop_shim
 from .dtypes import Stage
 from .view_sampler import ViewSampler, ViewSamplerEvaluation
-
+from torch.utils.data import Dataset
 
 @dataclass
 class DatasetRE10kCfg(DatasetCfgCommon):
@@ -31,7 +31,7 @@ class DatasetRE10kCfg(DatasetCfgCommon):
     make_baseline: bool
 
 
-class DatasetRE10k(IterableDataset):
+class DatasetRE10k(Dataset):
     cfg: DatasetRE10kCfg
     stage: Stage
     view_sampler: ViewSampler
@@ -56,109 +56,87 @@ class DatasetRE10k(IterableDataset):
 
         # Collect chunks.
         self.chunks = []
- 
+        
         if cfg.root is None:
             raise Exception("Root directory of dataset is not defined. Please specify in your argument as dataset.root=<path-to-root-directory>")
 
-        root = cfg.root / self.data_stage
+        root = cfg.root / "test"
         root_chunks = sorted(
             [path for path in root.iterdir() if path.suffix == ".torch"]
         )
-        print(root_chunks)
-        print(root)
         self.chunks.extend(root_chunks)
-        if self.cfg.overfit_to_scene is not None:
-            # self.chunks = [self.index[name] for name in self.cfg.overfit_to_scene] * len(self.chunks)
+        self.overfit_to_scene = list(view_sampler.index.keys())
         
-            with open(root / "index.json") as f:
-                self.map_dict = json.load(f)
-            self.chunks = [root / self.map_dict[name] for name in self.cfg.overfit_to_scene]
+        with open(root / "index.json") as f:
+            self.map_dict = json.load(f)
+        self.chunks = [root / self.map_dict[name] for name in self.overfit_to_scene]
+        self.root = root
+    def __getitem__(self, idx):
+        
+        if self.stage == "test":
+            self.chunks = [self.root / self.map_dict[name] for name in self.overfit_to_scene]
 
-    
+        chunk = torch.load(self.chunks[idx], weights_only=True)
 
-    def shuffle(self, lst: list) -> list:
-        indices = torch.randperm(len(lst))
-        return [lst[x] for x in indices]
+        item = [x for x in chunk if x["key"] == self.overfit_to_scene[idx]]
+        example = item[0]
+        extrinsics, intrinsics = self.convert_poses(example["cameras"])
+        scene = example["key"]
+        num_views = extrinsics.shape[0]
 
-    def __iter__(self):
-        # Chunks must be shuffled here (not inside __init__) for validation to show
-        # random chunks.
-        if self.stage in ("train", "val") or self.force_shuffle:
-            self.chunks = self.shuffle(self.chunks)
 
-        # When testing, the data loaders alternate chunks.
-        worker_info = torch.utils.data.get_worker_info()
-        if self.stage == "test" and worker_info is not None:
-            self.chunks = [
-                chunk
-                for chunk_index, chunk in enumerate(self.chunks)
-                if chunk_index % worker_info.num_workers == worker_info.id
-            ]
+        view_indices = self.view_sampler.sample(num_views=num_views, num_latents=num_views, scene=scene)
 
-        for chunk_path in self.chunks:
-            # Load the chunk.
-            chunk = torch.load(chunk_path, weights_only=True)
+        
+        for view_index in view_indices:
+            sample = {"scene": scene}
 
-            if self.cfg.overfit_to_scene is not None:
-                item = [x for x in chunk if x["key"] in self.cfg.overfit_to_scene]
-                # assert len(item) == len(self.cfg.overfit_to_scene)
-                chunk = item
-
-            if self.stage in ("train", "val", "test"):
-                chunk = self.shuffle(chunk)
-
-            for example in chunk:
-                extrinsics, intrinsics = self.convert_poses(example["cameras"])
-                scene = example["key"]
-                num_views = extrinsics.shape[0]
-
-                # Skip the example if the field of view is too wide.
-                if (get_fov(intrinsics).rad2deg() > self.cfg.max_fov).any():
+            # Resize the world to make the baseline 1.
+            context_extrinsics = extrinsics[view_index.context]
+            if context_extrinsics.shape[0] == 2 and self.cfg.make_baseline:
+                a, b = context_extrinsics[:, :3, 3]
+                scale = (a - b).norm()
+                if scale < self.cfg.baseline_epsilon:
+                    print(
+                        f"Skipped {scene} because of insufficient baseline "
+                        f"{scale:.6f}"
+                    )
                     continue
-
-                try:
-                    view_indices = self.view_sampler.sample(num_views=num_views, extrinsics=extrinsics, stage=self.stage, num_latents=num_views)
-                except ValueError as err:
-                    # Skip because the example doesn't have enough frames.
-                    print("Skipping: ", err)
+                extrinsics[:, :3, 3] /= scale
+            else:
+                scale = 1
+            
+            for view_type, indices in asdict(view_index).items():
+                if indices is None:
                     continue
-                for view_index in view_indices:
-                    sample = {"scene": scene}
+                # Load the images.
+                images = [
+                    example["images"][index.item()] for index in indices
+                ]
+                images = self.convert_images(images)
 
-  
-                    scale = 1
-                    
-                    for view_type, indices in asdict(view_index).items():
-                        if indices is None:
-                            continue
-                        
-                        # Load the images.
-                        images = [
-                            example["images"][index.item()] for index in indices
-                        ]
-                        images = self.convert_images(images)
+                # Skip the example if the images don't have the right shape.
+                image_invalid = images.shape[1:] != (3, 360, 640)
+                if image_invalid:
+                    print(
+                        f"Skipped bad example {scene}. "
+                        f"{view_type.capitalize()} shape was {images.shape}."
+                    )
+                    break
 
-                        # Skip the example if the images don't have the right shape.
-                        image_invalid = images.shape[1:] != (3, 360, 640)
-                        if image_invalid:
-                            print(
-                                f"Skipped bad example {scene}. "
-                                f"{view_type.capitalize()} shape was {images.shape}."
-                            )
-                            break
-
-                        sample[view_type] = {
-                            "extrinsics": extrinsics[indices],
-                            "intrinsics": intrinsics[indices],
-                            "latent": images,
-                            "index": indices
-                        }
-                    else:
-                        # This will only be executed if the inner for loop is exited normally
-                        if self.stage == "train" and self.cfg.augment:
-                            sample = apply_augmentation_shim(sample)
-
-                        yield apply_crop_shim(sample, tuple(self.cfg.shape))
+                sample[view_type] = {
+                    "extrinsics": extrinsics[indices],
+                    "intrinsics": intrinsics[indices],
+                    "latent": images,
+                    "index": indices
+                }
+            else:
+                # This will only be executed if the inner for loop is exited normally
+                if self.stage == "train" and self.cfg.augment:
+                    sample = apply_augmentation_shim(sample)
+                if self.stage in ["train", "val"]   and self.cfg.random_transform_extrinsics:
+                    sample = apply_random_transform_shim(sample)
+                return apply_crop_shim(sample, tuple(self.cfg.shape))
 
     def convert_poses(
         self,
@@ -201,34 +179,8 @@ class DatasetRE10k(IterableDataset):
         value = torch.tensor(getattr(self, bound), dtype=torch.float32)
         return repeat(value, "-> v", v=num_views)
 
-    @property
-    def data_stage(self) -> Stage:
-        if self.cfg.overfit_to_scene is not None:
-            return "test"
-        if self.stage == "val":
-            return "test"
-        return self.stage
 
-    @cached_property
-    def index(self) -> dict[str, Path]:
-        merged_index = {}
-        data_stages = [self.data_stage]
-        if self.cfg.overfit_to_scene is not None:
-            data_stages = ("test", "train")
-        for data_stage in data_stages:
-            # Load the root's index.
-            with (self.cfg.root / data_stage / "index.json").open("r") as f:
-                index = json.load(f)
-            index = {k: Path(self.cfg.root / data_stage / v) for k, v in index.items()}
 
-            # The constituent datasets should have unique keys.
-            assert not (set(merged_index.keys()) & set(index.keys()))
+    def __len__(self) -> int:
 
-            # Merge the root's index into the main index.
-            merged_index = {**merged_index, **index}
-        return merged_index
-
-    # def __len__(self) -> int:
-    #     if isinstance(self.view_sampler, ViewSamplerEvaluation):
-    #         return self.view_sampler.total_samples
-    #     return len(self.index.keys())
+        return len(self.overfit_to_scene)

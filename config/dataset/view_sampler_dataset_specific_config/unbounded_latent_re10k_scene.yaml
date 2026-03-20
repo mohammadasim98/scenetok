@@ -5,7 +5,6 @@ dataset:
 
     num_context_views: 12
     num_target_views: 8
-    chunk_index_gap: 4
-    num_target_split: 2
-    target_split_prob: 0.7
 
+    max_cond_number: 3
+    sample_cond_views: true

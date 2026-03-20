@@ -17,8 +17,6 @@ dataset:
   context_root: "dataset/dl3dv_vavae_latents"
   target_root: "dataset/dl3dv_videodc_latents" 
   map_dict: dataset/dl3dv_vavae_latents/map_dict.json
-
-  shape: [256, 256] 
   
   # Allow compatibility with va-videodc, refer to docs/KNOWN_BUG.md
   scale_focal_by_256: true
@@ -93,7 +91,7 @@ trainer:
   val_check_interval: 5000
   task_steps: null
   accumulate_grad_batches: 1
-  
+  gradient_clip_val: 0.01
 
   precision: bf16-mixed
 

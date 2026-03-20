@@ -8,27 +8,21 @@ defaults:
 dataset:
   overfit_to_scene: null
 
-  # root: /scratch/inf0/user/masim/acid/acid
-  context_root: "/scratch/inf0/user/masim/dataset/dl3dv_vavae_latents"
-  target_root: "/scratch/inf0/user/masim/dataset/dl3dv_wan_latents2" 
+  context_root: "dataset/dl3dv_vavae_latents"
+  target_root: "dataset/dl3dv_wan_latents" 
 
   view_sampler:
-    num_context_views: 16 #5 
+    num_context_views: 16 
     # num_target_views: 34
 
     num_target_split: 2
     num_target_views: 10
     chunk_index_gap: 5
     offset: 1
-    # starting_index_gap: 1
     min_distance_between_context_views: 64
     max_distance_between_context_views: 64
     max_distance_to_context_views: 0
-    # context_gap_warm_up_steps: 150_000 
-    # target_gap_warm_up_steps: 50_000
-    # initial_min_distance_between_context_views: 32
-    # initial_max_distance_between_context_views: 45
-    # initial_max_distance_to_context_views: 0  # 0
+
 data_loader:
   train:
     name: train

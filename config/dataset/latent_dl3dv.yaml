@@ -2,6 +2,7 @@ defaults:
   - view_sampler: bounded
 
 name: latent
+shape: [256, 256]
 target_root: null
 context_root: null
 baseline_epsilon: 1.0e-3

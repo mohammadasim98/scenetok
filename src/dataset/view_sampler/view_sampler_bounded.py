@@ -210,7 +210,7 @@ class ViewSamplerBounded(ViewSampler[ViewSamplerBoundedCfg]):
                 index_context_right = context_indices[-1].item()
 
             elif self.cfg.context_sampling == "farthest_point":
-                context_indices = torch.arange(0, num_views).long()
+                context_indices = torch.arange(0, extrinsics.shape[0]).long()
                 fps_indices = fps_from_pose(extrinsics[index_context_left:index_context_right+1].float(), n_samples=self.cfg.num_context_views).tolist()
                 indices = context_indices[index_context_left:index_context_right+1][fps_indices[1:-1]].tolist()
 
@@ -220,7 +220,7 @@ class ViewSamplerBounded(ViewSampler[ViewSamplerBoundedCfg]):
         if self.cameras_are_circular:
             if index_target is not None:
                 index_target %= num_views
-            index_context_right %= num_views
+            index_context_right %= extrinsics.shape[0]
 
         return ViewIndex(torch.tensor(sorted([index_context_left, *indices, index_context_right])), index_unrolled), index_target
 
