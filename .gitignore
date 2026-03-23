@@ -189,8 +189,6 @@ cython_debug/
 /lightning_logs
 /wandb
 
-notebook/scenegen.ipynb
-src/model/scene_wrapper.py
 
 
 
