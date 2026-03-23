@@ -16,9 +16,9 @@ defaults:
   - override /model/denoiser/camera/embedding: lvsm
 
 dataset:
-  context_root: "/BS/dl3dv/work/re10k_vavae_latents"
-  target_root: "/BS/dl3dv/work/re10k_videodc_latents" 
-  map_dict: "/BS/dl3dv/work/re10k_vavae_latents/map_dict.json"
+  context_root: "dataset/re10k_vavae_latents"
+  target_root: "dataset/re10k_videodc_latents" 
+  map_dict: "dataset/re10k_vavae_latents/map_dict.json"
 
 
 data_loader:
