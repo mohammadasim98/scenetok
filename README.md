@@ -105,12 +105,19 @@ pip install flash-attn --no-build-isolation
 
 
 > #### **Models**
-> Download the models to `checkpoints/` folder.
+> Download the SceneTok models to `checkpoints/` folder.
 > | Dataset | Model | rFID 
 > |-----------|-----------|-----------|
-> | RealEstate10K | [va-videodc_re10k](https://nextcloud.mpi-klsb.mpg.de/index.php/s/6Y7EsosfbnpcRxj)   | 11.12   |
-> | DL3DV | [va-videodc_dl3dv](https://nextcloud.mpi-klsb.mpg.de/index.php/s/aYBX7atFNKkmdSE)   | 19.12   |
-> | | [va-wan_dl3dv](https://nextcloud.mpi-klsb.mpg.de/index.php/s/X7yzk7QANtwawPc)   | **14.30**   |
+> | RealEstate10K | [va-videodc_re10k.ckpt](https://nextcloud.mpi-klsb.mpg.de/index.php/s/6Y7EsosfbnpcRxj)   | 11.12   |
+> | DL3DV | [va-videodc_dl3dv.ckpt](https://nextcloud.mpi-klsb.mpg.de/index.php/s/aYBX7atFNKkmdSE)   | 19.12   |
+> | | [va-wan_dl3dv.ckpt](https://nextcloud.mpi-klsb.mpg.de/index.php/s/X7yzk7QANtwawPc)   | **14.30**   |
+
+> Download the SceneGen models to `checkpoints/` folder. Note that you also need to download the corresponding [va-videodc_re10k_scene.ckpt](https://nextcloud.mpi-klsb.mpg.de/index.php/s/zEsw8ttT9E6Ge3C) model used for the SceneGen.
+> | Dataset | Model | gFID 
+> |-----------|-----------|-----------|
+> | RealEstate10K | [scenegen_shift1_re10k.ckpt](https://nextcloud.mpi-klsb.mpg.de/index.php/s/3XrHrKQR8diodAa)   | 19.99   |
+> |  | [scenegen_shift4_re10k.ckpt](https://nextcloud.mpi-klsb.mpg.de/index.php/s/GNbPMdd6gWtM56k)   | 19.04   |
+> |  | [scenegen_shift12_re10k.ckpt](https://nextcloud.mpi-klsb.mpg.de/index.php/s/oDDgXYwDXijQo6a)   | 18.90   |
 
 > #### **Pretrained AEs**
 > 
@@ -127,7 +134,7 @@ pip install flash-attn --no-build-isolation
 
 ## :running: Quick Inference in Jupyter Notebook
 
-We provide an experimental notebook to perform quick inference with [SceneTok](/notebook/scenetok.ipynb). 
+We provide an experimental notebook to perform quick inference with [SceneTok](/notebook/scenetok.ipynb) and [SceneGen](/notebook/scenegen.ipynb). 
 
 ## :robot: Training SceneTok
 Run the following to initiate training:
@@ -202,14 +209,90 @@ scenetok_va-wan_shift4_dl3dv_finetuned # va-wan_dl3dv.ckpt
 `index_path` are view indices to use for context and targets. We provide several index files in `assets/evaluation_index/`
 
 
+## :robot: Training SceneGen
+SceneGen generates compressed scene tokens conditioned on a single or a few images and a set of anchor poses. It requires a pretrained SceneTok model.
+
+Run the following to initiate training:
+```bash
+python -m src.main_scene +experiment=${config} \
+  data_loader.train.num_workers=${num_workers} \
+  mode=train \
+  trainer.devices=${gpus} \
+  trainer.num_nodes=${num_nodes} \
+  wandb.activated=true
+```
+
+> [!IMPORTANT]
+> SceneGen uses `src.main_scene` instead of `src.main` as the entry point.
+
+Set the parameters according to your needs. We provide the following configurations files `${config}` for `SceneGen`:
+```bash
+# RealEstate10K
+scenegen_shift1_re10k   # timestep_shift=1
+scenegen_shift4_re10k   # timestep_shift=4
+scenegen_shift12_re10k  # timestep_shift=12
+```
+
+> [!NOTE]
+> The `timestep_shift` parameter controls the noise schedule. Higher shift values generally lead to better generation quality. The pretrained SceneTok model `va-videodc_re10k_scene.ckpt` is required and automatically loaded via the config.
+
+<details>
+  <summary>Using SLURM</summary>
+
+  We provide SLURM script to allow multi-node/gpu training using job arrays. In `scripts/slurm_job_array_scenegen.sh` we provide a template where you can define your own configuration related to GPU and job array configurations. 
+  First, set the `PROJECT_ROOT` as environment variable:
+  ```bash
+  export PROJECT_ROOT="<your-project-directory>"
+  ```
+  Then simply run it as:
+
+  ```bash
+  bash scripts/slurm_job_array_scenegen.sh ${config}
+  ```  
+</details>
+
+
+## :gear: Inference on SceneGen
+
+```bash
+python -m src.main_scene +experiment=${config} mode=test hydra.job.name=test \
+  dataset=re10k \
+  wandb.activated=false \
+  trainer.limit_test_batches=1 \
+  data_loader.test.batch_size=1 \
+  model.compressor.ckpt_path=${scenetok_ckpt} \
+  model.denoiser.ckpt_path=${scenetok_ckpt} \
+  model.scene_generator.ckpt_path=${scenegen_ckpt} \
+  dataset.root=${data_root} \
+  test.output_dir=${output_dir} \
+  dataset.view_sampler.index_path=${index_path}
+```
+> [!NOTE]
+> `model.compressor` and `model.denoiser` use the same SceneTok checkpoint (`va-videodc_re10k_scene.ckpt`), while `model.scene_generator` uses a separate SceneGen checkpoint.
+
+List below are the `config` and checkpoint combinations:
+```bash
+# RealEstate10K
+scenegen_shift1_re10k   # scenegen_shift1_re10k.ckpt
+scenegen_shift4_re10k   # scenegen_shift4_re10k.ckpt
+scenegen_shift12_re10k  # scenegen_shift12_re10k.ckpt
+
+# All SceneGen configs require:
+# - scenetok_ckpt=checkpoints/va-videodc_re10k_scene.ckpt
+# - scenegen_ckpt=checkpoints/scenegen_shift{1,4,12}_re10k.ckpt
+```
+
+We also provide a Jupyter notebook for interactive inference: [SceneGen Notebook](/notebook/scenegen.ipynb)
+
+
 ## ✅ TODO
 `SceneTok`
 - [x] RealEstate10K - VA-VAE+VideoDC
 - [x] DL3DV - VA-VAE+Wan
 - [x] DL3DV - VA-VAE+VideoDC
 
-`SceneGen` (Soon)
-- [ ] RealEstate10K - VA-VAE+VideoDC
+`SceneGen`
+- [x] RealEstate10K - VA-VAE+VideoDC
 
 ## :mega: Future Extensions
 - [ ] Interactive Scene Renderer

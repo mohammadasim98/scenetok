@@ -179,11 +179,9 @@ class LightningDiTBlock(nn.Module):
         if not use_rmsnorm:
             self.norm1 = nn.LayerNorm(hidden_size, elementwise_affine=False, eps=1e-6)
             self.norm2 = nn.LayerNorm(hidden_size, elementwise_affine=False, eps=1e-6)
-            self.norm3 = nn.LayerNorm(hidden_size, elementwise_affine=False, eps=1e-6)
         else:
             self.norm1 = RMSNorm(hidden_size)
             self.norm2 = RMSNorm(hidden_size)
-            self.norm3 = RMSNorm(hidden_size)
             
         # Initialize attention layer
         self.attn = Attention(

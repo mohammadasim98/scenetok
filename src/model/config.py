@@ -33,6 +33,7 @@ class ModelCfg:
     scheduler: SchedulerCfg
     compressor: CompressorCfg | None
     autoencoders:  AutoencodersCfg
+    scene_scheduler: SchedulerCfg | None=None
     scene_generator: SceneGeneratorCfg | None=None
     use_cfg: bool=False
     cfg_scale: float=3.0

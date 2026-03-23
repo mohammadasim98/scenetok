@@ -2,10 +2,12 @@ defaults:
   - dataset: re10k
   - optional dataset/view_sampler_dataset_specific_config: ${dataset/view_sampler}_${dataset}
   - model/scheduler: rf
+  - model/scene_scheduler: null
   - model/denoiser: lightningdit_L_1
   - model/autoencoders/context: va
   - model/autoencoders/target: videodc
   - model/compressor: mv_B1
+  - model/scene_generator: null
   - sampler: full_sequence
 
   
@@ -34,7 +36,7 @@ freeze:
   scene_generator: false
 
 model:
-  scene_generator: null
+  optimize_ddp: false # Set to false because of higher order op error due to the use of flash attention
   mask_context: false
   noisy_scene_tokens: false
   force_clean: false

@@ -1,10 +1,11 @@
 # @package _global_
 
 defaults:
-  - /model/scene_generator: lightningdit_1p0B_1
+  - override /model/scene_generator: lightningdit_1p0B_1
   - override /dataset: latent_re10k_scene
   - override /dataset/view_sampler: unbounded  
   - override /model/scheduler: rf
+  - override /model/scene_scheduler: rf
   - override /model/denoiser: lightningdit_L_1
   - override /model/autoencoders/context: va
   - override /model/autoencoders/target: video_dc
@@ -43,12 +44,19 @@ model:
     sampling_type: random_chunked_uniform
     num_inference_steps: 25
     kwargs:
+      weighting: logit_normal
+
+  scene_scheduler:
+    sampling_type: random_uniform
+    num_inference_steps: 150
+    kwargs:
       weighting: shifted
       
       timestep_shift: 4
 
   scene_generator:
     ckpt_path: checkpoints/scenegen_shift4_re10k.ckpt
+    load_strict: false # Backward compatibility: only for provided checkpoints
     scale_factor: 0.1
     gradient_checkpointing: false
     input_shape: [16, 16]

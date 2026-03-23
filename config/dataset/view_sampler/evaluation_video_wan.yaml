@@ -5,3 +5,4 @@ temporal_downsample: 4
 num_context_views: 12
 num_target_views: 8
 num_target_split: 1
+max_cond_number: 3

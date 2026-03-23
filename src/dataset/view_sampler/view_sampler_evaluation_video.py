@@ -20,7 +20,7 @@ class ViewSamplerEvaluationVideoCfg:
     num_context_views: int
     num_target_views: int
     temporal_downsample: int=4
-
+    max_cond_number: int=3
 
 class ViewSamplerEvaluationVideo(ViewSampler[ViewSamplerEvaluationVideoCfg]):
     index: dict[str, list[IndexEntry]]

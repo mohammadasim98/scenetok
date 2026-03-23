@@ -7,7 +7,6 @@ root: null
 make_baseline: true
 augment: false
 random_transform_extrinsics: false
-shape: [256, 256] # [180, 320]
 background_color: [0.0, 0.0, 0.0]
 cameras_are_circular: false
 precomputed_latents: 
