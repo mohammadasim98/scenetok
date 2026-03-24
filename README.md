@@ -11,6 +11,7 @@
 
 ### 📣 News
 
+- **24.03.2026** - `SceneGen` Code, documentation and checkpoint release
 - **09.03.2026** - `SceneTok` Code, documentation and checkpoint release
 - **23.02.2026** - Initial repository release
 - **21.02.2026** - Accepted to [`CVPR 2026`](https://cvpr.thecvf.com/) 🎉!
