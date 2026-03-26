@@ -183,7 +183,7 @@ scenetok_va-wan_shift8_dl3dv_finetuned
 
 ```bash
 python -m src.main +experiment=${config} mode=test hydra.job.name=test \
-  dataset=re10k \
+  dataset=${dataset} \ 
   wandb.activated=false \ 
   trainer.limit_test_batches=1 \
   data_loader.test.batch_size=1 \
@@ -209,6 +209,7 @@ scenetok_va-wan_shift4_dl3dv_finetuned # va-wan_dl3dv.ckpt
 ```
 `index_path` are view indices to use for context and targets. We provide several index files in `assets/evaluation_index/`
 
+Choose `dataset` from `re10k` and `dl3dv` for RealEstate10K and DL3DV datasets respectively.
 
 ## :robot: Training SceneGen
 SceneGen generates compressed scene tokens conditioned on a single or a few images and a set of anchor poses. It requires a pretrained SceneTok model.
