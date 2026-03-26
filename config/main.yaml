@@ -90,7 +90,9 @@ checkpointing:
 
 train:
   step_offset: 0
-
+  nan_skip: true
+  grad_norm_skip: true
+  grad_norm_skip_threshold: 1.0
 test:
   mode: null
   scene_id: null
