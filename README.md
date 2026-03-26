@@ -188,13 +188,19 @@ python -m src.main +experiment=${config} mode=test hydra.job.name=test \
   trainer.limit_test_batches=1 \
   data_loader.test.batch_size=1 \
   model.compressor.ckpt_path=${ckpt} \
+  model.compressor.load_strict=false \
   model.denoiser.ckpt_path=${ckpt} \
+  model.denoiser.load_strict=false \
   dataset.root=${data_root} \
   test.output_dir=${output_dir} \
+  dataset/view_sampler=${view_sampler} \
   dataset.view_sampler.index_path=${index_path}
 ```
 > [!NOTE]
 > `model.compressor` and `model.denoiser` uses the same checkpoint file
+> `load_strict` should be set to `false` to allow backward compatibility for all modules.
+
+Select ```view_sampler``` from `evaluation_video` for VideoDCAE-based models and `evaluation_video_wan` for Wan-based models.
 
 List below are the `config` with checkpoints weights provided [here](#models)
 ```bash
@@ -263,14 +269,18 @@ python -m src.main_scene +experiment=${config} mode=test hydra.job.name=test \
   trainer.limit_test_batches=1 \
   data_loader.test.batch_size=1 \
   model.compressor.ckpt_path=${scenetok_ckpt} \
+  model.compressor.load_strict=false \
   model.denoiser.ckpt_path=${scenetok_ckpt} \
+  model.denoiser.load_strict=false \
   model.scene_generator.ckpt_path=${scenegen_ckpt} \
+  model.scene_generator.load_strict=false \
   dataset.root=${data_root} \
   test.output_dir=${output_dir} \
   dataset.view_sampler.index_path=${index_path}
 ```
 > [!NOTE]
 > `model.compressor` and `model.denoiser` use the same SceneTok checkpoint (`va-videodc_re10k_scene.ckpt`), while `model.scene_generator` uses a separate SceneGen checkpoint.
+> `load_strict` should be set to `false` to allow backward compatibility for all modules. 
 
 List below are the `config` and checkpoint combinations:
 ```bash
