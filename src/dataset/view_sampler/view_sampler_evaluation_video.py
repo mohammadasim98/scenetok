@@ -21,7 +21,8 @@ class ViewSamplerEvaluationVideoCfg:
     num_target_views: int
     temporal_downsample: int=4
     max_cond_number: int=3
-
+    chunk_index_gap: int=4
+    offset: int=0
 class ViewSamplerEvaluationVideo(ViewSampler[ViewSamplerEvaluationVideoCfg]):
     index: dict[str, list[IndexEntry]]
 

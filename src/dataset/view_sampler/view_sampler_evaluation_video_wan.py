@@ -20,8 +20,8 @@ class ViewSamplerEvaluationVideoWanCfg:
     num_context_views: int
     num_target_views: int
     temporal_downsample: int=4
-    offset: int=0
-    chunk_index_gap: int=1
+    offset: int=1
+    chunk_index_gap: int=5
 
 class ViewSamplerEvaluationVideoWan(ViewSampler[ViewSamplerEvaluationVideoWanCfg]):
     index: dict[str, list[IndexEntry]]

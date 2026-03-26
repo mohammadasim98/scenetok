@@ -115,3 +115,6 @@ class ValCfg:
 class TrainCfg:
     step_offset: int
     cfg_train: bool=False
+    nan_skip: bool=True
+    grad_norm_skip: bool=True
+    grad_norm_skip_threshold: float=1.0

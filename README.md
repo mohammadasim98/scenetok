@@ -192,7 +192,7 @@ python -m src.main +experiment=${config} mode=test hydra.job.name=test \
   model.denoiser.ckpt_path=${ckpt} \
   model.denoiser.load_strict=false \
   dataset.root=${data_root} \
-  test.output_dir=${output_dir} \
+  hydra.run.dir=${output_dir} \
   dataset/view_sampler=${view_sampler} \
   dataset.view_sampler.index_path=${index_path}
 ```
@@ -275,7 +275,7 @@ python -m src.main_scene +experiment=${config} mode=test hydra.job.name=test \
   model.scene_generator.ckpt_path=${scenegen_ckpt} \
   model.scene_generator.load_strict=false \
   dataset.root=${data_root} \
-  test.output_dir=${output_dir} \
+  hydra.run.dir=${output_dir} \
   dataset.view_sampler.index_path=${index_path}
 ```
 > [!NOTE]

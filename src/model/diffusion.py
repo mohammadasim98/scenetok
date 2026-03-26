@@ -54,7 +54,7 @@ def first_stage_encode(
             latents = torch.concat(latents, dim=1)
             latents = rearrange(inputs, "(b v) c h w -> b v c h w", b=b)
         else:
-            latents = autoencoder[view_type].encode(inputs).latent_dist.sample()
+            latents = autoencoder[view_type].encode(inputs.bfloat16()).latent_dist.sample()
             latents = rearrange(latents, "(b v) c h w -> b v c h w", v=v)
         
         if autoencoder_name == "va":

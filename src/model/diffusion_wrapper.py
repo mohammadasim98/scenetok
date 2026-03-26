@@ -94,8 +94,8 @@ class DiffusionWrapper(LightningModule):
         num_target_split = self.model_cfg.denoiser.num_target_split
         
         print("(Main Model) Number of Target Splits: ", num_target_split)
-        print(f"(Sampler) Timestep {self.model_cfg.scheduler.kwargs.timestep_shift}")
-        print(f"(Sampler) Clean Targets {sampler_cfg.clean_targets}")
+        print(f"(Sampler) Timestep Shift: {self.model_cfg.scheduler.kwargs.timestep_shift}")
+        print(f"(Sampler) Clean Targets: {sampler_cfg.clean_targets}")
 
         self.sampler = get_sampler(sampler_cfg)
         self.override_applied = False
@@ -913,7 +913,7 @@ class DiffusionWrapper(LightningModule):
         # scan all grads for NaN or Inf
         for name, p in self.named_parameters():
             if p.grad is not None:
-                if torch.isnan(p.grad).any() or torch.isinf(p.grad).any():
+                if torch.isnan(p.grad).any() or torch.isinf(p.grad).any() or (self.train_cfg.grad_norm_skip and avg_norm > self.train_cfg.grad_norm_skip_threshold):
                     print(f"Skipping Nans! in {name}")
                     self.log("nan_grad_skipped", 1.0, prog_bar=True)
                     # zero out everything—this makes the upcoming optimizer.step() a no-op
