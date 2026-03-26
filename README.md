@@ -276,6 +276,7 @@ python -m src.main_scene +experiment=${config} mode=test hydra.job.name=test \
   model.scene_generator.load_strict=false \
   dataset.root=${data_root} \
   hydra.run.dir=${output_dir} \
+  dataset/view_sampler=evaluation_video \
   dataset.view_sampler.index_path=${index_path}
 ```
 > [!NOTE]
