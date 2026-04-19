@@ -307,12 +307,15 @@ We also provide a Jupyter notebook for interactive inference: [SceneGen Notebook
 `SceneGen`
 - [x] RealEstate10K - VA-VAE+VideoDC
 
+`Data Preprocessing` see [DATASET](/docs/DATASET.md)
+- [x] RealEstate10K - WAN 2.2
+- [x] DL3DV - WAN 2.2
+
 ## :mega: Future Extensions
 - [ ] Interactive Scene Renderer
   - [ ] Causal decoder version for SceneTok
 - [ ] High-resolution SceneTok (512x512)
 - [ ] Pointcloud prediction from RGB+Depth renderings
-- [ ] SceneGen (DL3DV)
 
 ## :page_with_curl: Feedback
 We will be very happy to hear feedback on how best to improve the documentation. Since we cleaned and restructured the code alot, in case of any issue or bugs with the documentation or the codebase, feel free to let us know. Refer to [KNOWN_BUGS](/docs/KNOWN_BUGS.md) for bugs already reported.

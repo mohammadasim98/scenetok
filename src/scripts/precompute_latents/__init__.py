@@ -4,6 +4,8 @@ from src.scripts.precompute_latents.va_re10k import LatentVARE10KDataset, Latent
 from src.scripts.precompute_latents.va_dl3dv import LatentVADL3DVDataset, LatentVADL3DVDatasetCfg
 from src.scripts.precompute_latents.videodc_re10k import LatentVideoDCRE10KDataset, LatentVideoDCRE10KDatasetCfg
 from src.scripts.precompute_latents.videodc_dl3dv import LatentVideoDCDL3DVDataset, LatentVideoDCDL3DVDatasetCfg
+from src.scripts.precompute_latents.wan_re10k import LatentWanRE10KDataset, LatentWanRE10KDatasetCfg
+from src.scripts.precompute_latents.wan_dl3dv import LatentWanDL3DVDataset, LatentWanDL3DVDatasetCfg
 
 
 
@@ -12,12 +14,16 @@ LatentDatasetCfg = (
     | LatentVADL3DVDatasetCfg
     | LatentVideoDCRE10KDatasetCfg
     | LatentVideoDCDL3DVDatasetCfg
+    | LatentWanRE10KDatasetCfg
+    | LatentWanDL3DVDatasetCfg
 )
 LatentDataset = (
     LatentVARE10KDataset 
     | LatentVADL3DVDataset
     | LatentVideoDCRE10KDataset
     | LatentVideoDCDL3DVDataset
+    | LatentWanRE10KDataset
+    | LatentWanDL3DVDataset
 )
 
 DATASET: dict[str, LatentDataset] = {
@@ -25,7 +31,8 @@ DATASET: dict[str, LatentDataset] = {
     "videodc_re10k": LatentVideoDCRE10KDataset,
     "va_dl3dv": LatentVADL3DVDataset,
     "videodc_dl3dv": LatentVideoDCDL3DVDataset,
-
+    "wan_re10k": LatentWanRE10KDataset,
+    "wan_dl3dv": LatentWanDL3DVDataset,
 }
 
 

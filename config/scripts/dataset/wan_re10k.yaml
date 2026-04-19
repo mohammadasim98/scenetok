@@ -1,0 +1,8 @@
+
+name: wan_re10k
+
+ckpt_path: checkpoints/Wan2.2_VAE.pth
+image_shape: [256, 256]
+data_root: ""
+min_frames: 34
+downsample_factors: [1]

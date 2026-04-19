@@ -893,10 +893,13 @@ class Wan2_2_VAE(nn.Module):
         c_dim=160,
         vae_pth=None,
         dim_mult=[1, 2, 4, 4],
-        temperal_downsample=[False, True, True]
+        temperal_downsample=[False, True, True],
+        dtype=torch.float,
+        device="cuda",
     ):
         super().__init__()
-
+        self.dtype = dtype
+        self.device = device
         mean = torch.tensor(
             [
                 -0.2289,

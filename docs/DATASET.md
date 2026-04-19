@@ -94,6 +94,24 @@ python -m src.scripts.preprocess_dataset \
         size=5000 \
         output_dir="./data/preprocessed_data/videodc_re10k" \
         flip=false
+
+    # <============= WAN 2.2 =============>
+    # Test
+    python -m src.scripts.preprocess_dataset dataset=wan_re10k \
+        dataset.data_root=${root} \
+        stage=test \
+        index=0 \
+        size=600 \
+        output_dir="./data/preprocessed_data/wan_re10k" \
+        flip=false
+
+    # Train
+    python -m src.scripts.preprocess_dataset dataset=wan_re10k \
+        stage=train \
+        index=0 \
+        size=5000 \
+        output_dir="./data/preprocessed_data/wan_re10k" \
+        flip=false
     ```
 
 1. For DL3DV:
@@ -140,6 +158,26 @@ python -m src.scripts.preprocess_dataset \
         size=1000 \
         output_dir="./data/preprocessed_data/videodc_dl3dv" \
         flip=false # Train
+
+    # <============= WAN 2.2 =============>
+    # Test
+    python -m src.scripts.preprocess_dataset dataset=wan_dl3dv \
+        dataset.data_root=${root} \
+        stage=test \
+        index=0 \
+        size=140 \
+        output_dir="./data/preprocessed_data/wan_dl3dv" \
+        flip=false # Test
+    
+    # Train
+    python -m src.scripts.preprocess_dataset dataset=wan_dl3dv \
+        dataset.data_root=${root} \
+        dataset.subset=${subset} \
+        stage=train \
+        index=0 \
+        size=1000 \
+        output_dir="./data/preprocessed_data/wan_dl3dv" \
+        flip=false # Train
     ```
 
 > [!INFO] 
@@ -158,10 +196,12 @@ First set the `PROJECT_ROOT` as environment variable:
 # DL3DV
 bash convert_dl3dv_vavae.sh ${output_dir} ${root_dir}
 bash convert_dl3dv_videodc.sh ${output_dir} ${root_dir}
+bash convert_dl3dv_wan.sh ${output_dir} ${root_dir}
 
 # RE10K
 bash convert_re10k_vavae.sh ${output_dir} ${root_dir}
 bash convert_re10k_videodc.sh ${output_dir} ${root_dir}
+bash convert_re10k_wan.sh ${output_dir} ${root_dir}
 ```
 
 Specify `root_dir` as the root directory of the original dataset and `output_dir` as the root directory to which you want to save the computed latents following the same structure as [above](#format)
