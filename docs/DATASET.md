@@ -1,10 +1,12 @@
 # Dataset Format
 
 ## Training
-In our experiments, we use `latent` datasets where we precompute and store the latents for both *context* and *target* views on disk (ty) for faster training and high throughput. We additionally also provide with a standard RGB version, 
+In our experiments, we use `latent` datasets where we precompute and store the latents for both *context* and *target* views on disk for faster training and high throughput. In addition, we also allow training with the original RGB version of the datasets.
 
 > [!TIP]
 > we recommend using our latent dataloaders when training `SceneTok` and `SceneGen`.
+
+We provide preprocessed dataset of WAN 2.2 latents for DL3DV [here](https://drive.google.com/file/d/1w5WSqTnvGKBrbHClke3Spv-IbutwoQlv/view?usp=sharing)  
 
 ## Inference
 Inference does not need to use the latent dataset and instead use RGB dataset and can use the original dataset format.
