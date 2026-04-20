@@ -42,7 +42,7 @@ echo "#SBATCH --gres gpu:1" >> $jobscript
 
 echo "echo -n 'date: ';(date '+%Y-%m-%d %H:%M:%S')" >> $jobscript
 
-# echo "conda activate scenetok" >>  $jobscript # <-- Change if using another environment manager
+echo "conda activate scenetok" >>  $jobscript # <-- Change if using another environment manager
 echo 'echo "${SLURM_ARRAY_TASK_ID}"' >> $jobscript
 echo 'cd "${PROJECT_ROOT}"' >> $jobscript
 

@@ -43,9 +43,9 @@ echo "#SBATCH --mem=125G" >> $jobscript
 echo "#SBATCH --gres gpu:1" >> $jobscript
 
 echo "echo -n 'date: ';(date '+%Y-%m-%d %H:%M:%S')" >> $jobscript
-# echo "conda activate scenetok" >>  $jobscript # <-- Change if using another environment manager
+echo "conda activate scenetok" >>  $jobscript # <-- Change if using another environment manager
 echo 'echo "${SLURM_ARRAY_TASK_ID}"' >> $jobscript
-echo 'cd "/BS/grl-masim-data/work/project/code_release/scenetok"' >> $jobscript
+echo 'cd "${PROJECT_ROOT}"' >> $jobscript
 
 echo 'python -m src.scripts.preprocess_dataset dataset=wan_dl3dv dataset.data_root='"${root}"' stage='"${stage}"' dataset.subset='"${subset}"' output_dir='"${output_dir}"' flip='"${flip}"' index="${SLURM_ARRAY_TASK_ID}" size='"${size}"' dataset.num_workers='"${CPUS}">> $jobscript
 
