@@ -7,6 +7,7 @@ from dataclasses import dataclass
 
 from src.model.autoencoder.wanvae import Wan2_2_VAE
 from src.scripts.precompute_latents.latent_dataset import LatentDL3DVDataset, LatentDL3DVDatasetCfg
+from src.model.autoencoder.autoencoder_wan import AutoencoderWan, AutoencoderWanCfg, WanKwargsCfg
 
 
 @dataclass
@@ -21,9 +22,15 @@ class LatentWanDL3DVDataset(LatentDL3DVDataset):
     def _init_model(self):
         print(f"Loading Wan2.2 VAE model from {self.cfg.ckpt_path}...")
         # Encode as multiples of 17 frames (causal 4× temporal downsampling: 17 → 5 latents)
-        self.model = Wan2_2_VAE(
-            vae_pth=str(self.cfg.ckpt_path)
-        ).cuda().eval()
+        self.model = AutoencoderWan(AutoencoderWanCfg(
+            name="wan",
+            pretrained_from=str(self.cfg.ckpt_path),
+            kwargs=WanKwargsCfg(
+                in_channels=3,
+                latent_channels=48,
+                scaling_factor=1.0
+            )
+        )).from_pretrained(str(self.cfg.ckpt_path)).cuda().to(torch.bfloat16).eval()
 
     def __getitem__(self, idx):
 
@@ -57,18 +64,20 @@ class LatentWanDL3DVDataset(LatentDL3DVDataset):
                 return
 
             # (c, num, h, w), normalized to [-1, 1]
-            imgs_enc = imgs[:num].permute(1, 0, 2, 3).cuda().to(torch.bfloat16)
+            imgs_enc = imgs[:num].cuda().to(torch.bfloat16)
             imgs_enc = 2 * imgs_enc - 1.0
             extr = extr[:num]
             intr = intr[:num]
 
             chunks = num // 17
-            imgs_list = list(torch.chunk(imgs_enc, chunks, dim=1))  # list of (c, 17, h, w)
+            imgs_list = list(torch.chunk(imgs_enc, chunks, dim=0))  # list of (17, c, h, w)
 
             with torch.no_grad():
-                latents = self.model.encode(imgs_list)  # list of (c, t_latent, h_latent, w_latent)
+                latents = []
+                for img in imgs_list:
+                    latents.append(self.model.encode(img[None]))  # list of (t_latent, c, h_latent, w_latent)
 
-            latents = torch.concat(latents, dim=1).permute(1, 0, 2, 3).cpu()  # (v_latent, c, h, w)
+            latents = torch.concat(latents, dim=1).cpu()  # (v_latent, c, h, w)
 
             if torch.isnan(latents).any() or torch.isinf(latents).any():
                 print("Found NaNs in latents *before* saving! Skipping...")
