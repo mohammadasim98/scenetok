@@ -113,7 +113,7 @@ pip install flash-attn --no-build-isolation
 > | DL3DV | [va-videodc_dl3dv.ckpt](https://nextcloud.mpi-klsb.mpg.de/index.php/s/aYBX7atFNKkmdSE)   | 19.12   |
 > | | [va-wan_dl3dv.ckpt](https://nextcloud.mpi-klsb.mpg.de/index.php/s/X7yzk7QANtwawPc)   | **14.30**   |
 
-> Download the SceneGen models to `checkpoints/` folder. Note that you also need to download the corresponding [va-videodc_re10k_scene.ckpt](https://nextcloud.mpi-klsb.mpg.de/index.php/s/zEsw8ttT9E6Ge3C) model used for the SceneGen.
+> Download the SceneGen models to `checkpoints/` folder. Note that you also need to download the corresponding [va-videodc_re10k_scene.ckpt](https://huggingface.co/datasets/asimbluemoon/SceneTok/blob/main/va-videodc_re10k_scene.ckpt) model used for the SceneGen.
 > | Dataset | Model | gFID 
 > |-----------|-----------|-----------|
 > | RealEstate10K | [scenegen_shift1_re10k.ckpt](https://nextcloud.mpi-klsb.mpg.de/index.php/s/3XrHrKQR8diodAa)   | 19.99   |
