@@ -18,15 +18,13 @@ dataset:
   target_root: ""
   map_dict: ""
 
-
   shape: [512, 512] 
   probability: [0.5, 0.5]
   context_latent_type: va
   target_latent_type: videodc
   view_sampler:
     num_context_views: 16
-    num_target_views: 8
-
+    num_target_views: 16
 
 
 
@@ -35,16 +33,16 @@ data_loader:
     batch_size: 4
   val:
     standard:
-      batch_size: 64
+      batch_size: 16
 val:
-  video_length: 64
+  video_length: 128
 wandb:
   tags: [all, 512x512, va-vdc, jsc, 2K]
 
   activated: true
 
 sampler:
-  clean_targets: 4
+  clean_targets: 8
 
 freeze:
   denoiser: false
@@ -54,8 +52,8 @@ model:
   autoencoders:
     target:
       kwargs:
-        temporal_tile_size: 16
-        tile_overlap_factor: 0.0
+        temporal_tile_size: 32
+        tile_overlap_factor: 0.25
   scheduler:
     sampling_type: random_chunked_uniform
     num_inference_steps: 25
@@ -64,8 +62,6 @@ model:
       timestep_shift: 4
       num_chunks: 2
   denoiser:
-    ckpt_path: /BS/grl-masim-data/work/project/state_space/outputs/scenetok_va-vdc_512px_all_2K_jsc/2026-09-17_12-39-21_8node/checkpoints/last.ckpt
-    load_strict: false # Backward compatibility: only for provided checkpoints
     input_shape: [16, 16]
     causal_attention: false # Enable causal attention to all KV caching later on
     gradient_checkpointing: false
@@ -80,8 +76,6 @@ model:
       in_channels: 128
 
   compressor:
-    ckpt_path: /BS/grl-masim-data/work/project/state_space/outputs/scenetok_va-vdc_512px_all_2K_jsc/2026-09-17_12-39-21_8node/checkpoints/last.ckpt
-    load_strict: false
     kl_weights: [0.0, 0.0]
     input_shape: [32, 32]
     num_scene_tokens: 2048
@@ -107,9 +101,9 @@ checkpointing:
   every_n_train_steps: 1000      
 trainer:
   max_steps: 5_000_001
-  val_check_interval: 5000
+  val_check_interval: 10000
   task_steps: null
-  accumulate_grad_batches: 1
+  accumulate_grad_batches: 2
   gradient_clip_val: 0.1
 
   precision: bf16-mixed
