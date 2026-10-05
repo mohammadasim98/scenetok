@@ -11,13 +11,14 @@ from .dataset_re10k import DatasetRE10k, DatasetRE10kCfg
 from .dataset_dl3dv import DatasetDL3DV, DatasetDL3DVCfg
 from .dataset_re10k import DatasetRE10k, DatasetRE10kCfg
 from .dataset_latent import DatasetLatent, DatasetLatentCfg
-
+from .dataset_re10k_hires import DatasetRE10kHiRes, DatasetRE10kHiResCfg
 
 
 DATASETS: dict[str, Dataset] = {
     "re10k": DatasetRE10k,
     "dl3dv": DatasetDL3DV,
     "latent": DatasetLatent,
+    "re10k_hires": DatasetRE10kHiRes,
 }
 
 
@@ -25,7 +26,7 @@ DatasetCfg = (
     DatasetDL3DVCfg 
     | DatasetLatentCfg
     | DatasetRE10kCfg
-
+    | DatasetRE10kHiResCfg
 )
 
 

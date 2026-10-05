@@ -1,0 +1,128 @@
+# @package _global_
+
+defaults:
+  - override /dataset: latent_re10k
+  - override /dataset/view_sampler: unbounded
+  - override /model/scheduler: rf
+  - override /model/denoiser: lightningdit_XL_1
+  - override /model/autoencoders/context: va
+  - override /model/autoencoders/target: video_dc
+  - override /model/compressor: mv_L1
+  - override /model/compressor/camera: plucker
+  - override /model/compressor/camera/embedding: lvsm
+  - override /model/denoiser/camera: plucker
+  - override /model/denoiser/camera/embedding: lvsm
+  
+dataset:
+  context_root: "/BS/dl3dv/work/re10k_vavae_latents_512"
+  target_root: "/BS/dl3dv/work/re10k_videodc_latents_512"
+  map_dict: "/BS/dl3dv/work/re10k_videodc_latents_512/map_dict.json"
+
+
+  shape: [512, 512] 
+  probability: [0.5, 0.5]
+  context_latent_type: va
+  target_latent_type: videodc
+
+
+
+data_loader:
+  train:
+    batch_size: 4
+  val:
+    standard:
+      batch_size: 64
+val:
+  video_length: 64
+wandb:
+  tags: [all, 512x512, va-vdc, jsc, 2K]
+
+  activated: true
+
+sampler:
+  clean_targets: 4
+
+freeze:
+  denoiser: false
+  compressor: true
+  
+model:
+
+  scheduler:
+    sampling_type: random_chunked_uniform
+    num_inference_steps: 25
+    kwargs:
+      weighting: shifted
+      timestep_shift: 4
+      num_chunks: 2
+  denoiser:
+    ckpt_path: /BS/grl-masim-data/work/project/state_space/outputs/scenetok_va-vdc_512px_all_2K_jsc/2026-09-17_12-39-21_8node/checkpoints/last.ckpt
+    load_strict: false # Backward compatibility: only for provided checkpoints
+    input_shape: [16, 16]
+    causal_attention: false # Enable causal attention to all KV caching later on
+    gradient_checkpointing: false
+    num_target_split: 2 # Single 3D RoPE across all chunks
+    camera:
+      input_shape: [256, 256]
+      embedding:
+        patch_size: 16
+        in_channels: 24
+    kwargs:
+      use_rope_3d: true
+      in_channels: 128
+
+  compressor:
+    ckpt_path: /BS/grl-masim-data/work/project/state_space/outputs/scenetok_va-vdc_512px_all_2K_jsc/2026-09-17_12-39-21_8node/checkpoints/last.ckpt
+    load_strict: false
+    kl_weights: [0.0, 0.0]
+    input_shape: [32, 32]
+    num_scene_tokens: 2048
+    causal_self_atten: false
+    gradient_checkpointing: false
+    token_dim: 128
+    camera_conditioning: adaLN
+    scene_token_projection: simple
+    mask_context: false
+    init_large: false
+    camera:
+      input_shape: [256, 256]
+      embedding:
+        patch_size: 16
+    kwargs:
+      use_rope_2d: true
+      use_rope_3d: false
+      patch_size: 2
+      use_qknorm: true
+
+
+checkpointing:
+  every_n_train_steps: 1000      
+trainer:
+  max_steps: 5_000_001
+  val_check_interval: 5000
+  task_steps: null
+  accumulate_grad_batches: 1
+  gradient_clip_val: 0.1
+
+  precision: bf16-mixed
+
+optimizer:
+  name: AdamW
+  lr: 0.078125e-5 
+
+  scale_lr: true
+  milestones: [2000]
+  scheduler:
+    - name: LinearLR
+      frequency: 1
+      interval: step
+      kwargs:
+        start_factor: 5.e-4
+        total_iters: 2000
+
+    - name: MultiStepLR
+      frequency: 1
+      interval: step
+      kwargs:
+        milestones: [5000, 10000, 15000, 150000, 500000, 650000, 800000, 1000000]
+        gamma: 0.8

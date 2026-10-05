@@ -17,7 +17,7 @@ zero_init: false
 input_shape: [8, 8]
 init_large: true
 kwargs:
-  hidden_size: 1024
+  hidden_size: 768
   depth: 24
   patch_size: 1
   num_heads: 16

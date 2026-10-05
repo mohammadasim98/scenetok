@@ -1,0 +1,17 @@
+defaults:
+  - view_sampler: unbounded
+
+name: re10k_hires
+shape: [512, 512]
+root: null
+annotations_root: null
+make_baseline: false
+augment: false
+random_transform_extrinsics: false
+background_color: [0.0, 0.0, 0.0]
+cameras_are_circular: false
+precomputed_latents:
+  context: false
+  target: false
+baseline_epsilon: 1e-3
+max_fov: 100.0

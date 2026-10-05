@@ -7,6 +7,7 @@ from einops import rearrange
 from typing import Optional, Callable
 from flash_attn import flash_attn_func
 from timm.layers import Mlp
+from src.model.denoiser.layers.rmsnorm import RMSNorm
 
 
 
@@ -43,7 +44,7 @@ class Attention(nn.Module):
         self.cross_atten = cross_atten
         self.is_rope_3d = is_rope_3d
         if use_rmsnorm:
-            norm_layer = nn.RMSNorm
+            norm_layer = RMSNorm
         
         self.q_norm = norm_layer(self.head_dim) if qk_norm else nn.Identity()
         self.k_norm = norm_layer(self.head_dim) if qk_norm else nn.Identity()
@@ -161,11 +162,11 @@ class LightningDiTBlock(nn.Module):
                 self.norm3 = nn.LayerNorm(hidden_size, elementwise_affine=False, eps=1e-6)
             self.norm4 = nn.LayerNorm(hidden_size, elementwise_affine=False, eps=1e-6)
         else:
-            self.norm1 = nn.RMSNorm(hidden_size)
-            self.norm2 = nn.RMSNorm(hidden_size)
+            self.norm1 = RMSNorm(hidden_size)
+            self.norm2 = RMSNorm(hidden_size)
             if not skip_last_layer:
-                self.norm3 = nn.RMSNorm(hidden_size)
-            self.norm4 = nn.RMSNorm(hidden_size)
+                self.norm3 = RMSNorm(hidden_size)
+            self.norm4 = RMSNorm(hidden_size)
             
         # Initialize attention layer
         self.attn1 = Attention(

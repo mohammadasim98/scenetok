@@ -93,7 +93,7 @@ class ViewSamplerUnbounded(ViewSampler[ViewSamplerUnboundedCfg]):
 
         else:
             cond_indices = None
-
+        print(f"Sampled context indices: {context_indices}, target indices: {index_targets}, cond indices: {cond_indices}, unrolled indices: {index_unrolled}")
         return ViewIndex(context_indices, index_unrolled, cond=cond_indices), index_targets 
         
  

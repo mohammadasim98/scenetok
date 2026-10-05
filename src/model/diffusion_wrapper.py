@@ -379,14 +379,15 @@ class DiffusionWrapper(LightningModule):
                 pose=context_camera[:, ~context_mask[0]],
                 mask=None
             )
+        with torch.autocast(enabled=True, device_type="cuda", dtype=torch.bfloat16):
 
-        tokens, qks = self.compressor._forward(inputs=context_inputs)
-        
+            tokens, qks = self.compressor._forward(inputs=context_inputs)
+            
 
-        if self.model_cfg.compressor.scene_token_projection == "kl":
-            scene_tokens = tokens.sample()
-        else:
-            scene_tokens = tokens
+            if self.model_cfg.compressor.scene_token_projection == "kl":
+                scene_tokens = tokens.sample()
+            else:
+                scene_tokens = tokens
 
         scene_tokens = repeat(scene_tokens, "b ... -> (b n) ...", n=repeat_factor)
         
