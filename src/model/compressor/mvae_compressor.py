@@ -21,8 +21,7 @@ from src.model.diagonal_gaussian import DiagonalGaussianDistribution
 from src.model.compressor.compressor import Compressor
 from src.model.compressor.layers.attention import LightningDiTBlock
 from src.model.denoiser.layers.pos_embed import VisionRotaryEmbeddingFast
-from src.model.denoiser.layers.patch_embed import PatchEmbed
-from src.model.denoiser.layers.rmsnorm import RMSNorm
+from src.model.denoiser.layers.patch_embed import PatchEmbed 
 
 def zero_initialize(layer):
     if hasattr(layer, 'weight') and layer.weight is not None:
@@ -195,7 +194,7 @@ class MVAECompressor(Compressor[MVAECompressorCfg]):
         ])
         self.use_scene_norm = cfg.use_scene_norm
         if cfg.use_scene_norm:
-            self.scene_norm = RMSNorm(cfg.kwargs.hidden_size)
+            self.scene_norm = nn.RMSNorm(cfg.kwargs.hidden_size)
         
         self.pose_embed = get_camera(cfg.camera, embed_dim=cam_emb_dim, temporal_downsample=temporal_downsample)
         self.causal = cfg.causal_self_atten
@@ -208,13 +207,13 @@ class MVAECompressor(Compressor[MVAECompressorCfg]):
             if cfg.scene_token_projection == "simple":
                 self.out_proj = nn.Linear(cfg.kwargs.hidden_size, cfg.token_dim)
                 if self.norm_before_proj:
-                    self.norm = RMSNorm(cfg.kwargs.hidden_size)
+                    self.norm = nn.RMSNorm(cfg.kwargs.hidden_size)
                 else:
-                    self.norm = RMSNorm(cfg.token_dim)
+                    self.norm = nn.RMSNorm(cfg.token_dim)
             elif cfg.scene_token_projection == "gated":
                 self.out_proj = nn.Sequential(
                     nn.Linear(cfg.kwargs.hidden_size, cfg.token_dim),
-                    RMSNorm(cfg.token_dim),
+                    nn.RMSNorm(cfg.token_dim),
                     nn.Tanh()
                 )
             elif cfg.scene_token_projection == "kl":
